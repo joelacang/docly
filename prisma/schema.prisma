@@ -1,0 +1,401 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  role          UserRole  @default(USER)
+
+  elementsCreated          Element[]                       @relation("ElementCreator")
+  workspaceMemberships     WorkspaceMembership[]
+  invitesMade              WorkspaceMembershipInvitation[] @relation("InvitedBy")
+  invites                  WorkspaceMembershipInvitation[] @relation("InvitedUser")
+  inboxItemsSent           InboxItem[]                     @relation("InboxSender")
+  inboxItemsReceived       InboxItem[]                     @relation("InboxRecipient")
+  permissionsCreated       ElementPermission[]             @relation("PermissionCreator")
+  permissionAccesses       ElementPermission[]             @relation("PermissionAccess")
+  elementsOwned            ElementOwner[]                  @relation("ElementOwner")
+  elementOwnershipsCreated ElementOwner[]                  @relation("ElementOwnershipCreator")
+  preference               UserPreference?
+
+  @@unique([email])
+  @@index([email])
+  @@index([name])
+  @@index([role])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+enum Theme {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+model UserPreference {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  theme                    Theme    @default(SYSTEM)
+  language                 String   @default("en") // ISO 639-1 codes, e.g. "en", "fr", "es"
+  timezone                 String   @default("UTC")
+  receiveEmails            Boolean  @default(true)
+  receivePushNotifications Boolean  @default(true)
+  showTips                 Boolean  @default(true)
+  currentWorkspaceId       String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentWorkspace Workspace? @relation(fields: [currentWorkspaceId], references: [id], onDelete: SetNull)
+}
+
+enum ElementType {
+  Workspace
+  Folder
+  Collection
+  Entry
+  Team
+}
+
+enum CollectionType {
+  Notebook
+  TaskGroup
+  IssueTracker
+  Discussion
+  Chat
+  Calendar
+  Storage
+  FAQ
+  Announcement
+}
+
+enum EntryType {
+  Page
+  Note
+  Task
+  Issue
+  Thread
+  Channel
+  Event
+  File
+  Question
+  Alert
+}
+
+enum ElementStatus {
+  Pending
+  Active
+  Restricted
+  Deleted
+  Draft
+}
+
+enum ElementAccess {
+  Private //Only members
+  Personal //Only creator
+  Public //Everyone
+  Custom //Only those selected
+  Admin //Only users with Admin Role can access
+}
+
+enum Color {
+  BLUE
+  RED
+  TEAL
+  ORANGE
+  PINK
+  PURPLE
+  GREEN
+  CYAN
+  GRAY
+  INDIGO
+  YELLOW
+}
+
+model Element {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  status      ElementStatus @default(Active)
+  access      ElementAccess
+  type        ElementType
+  color       Color
+  avatarUrl   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdById String?
+
+  createdBy User? @relation("ElementCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  workspace Workspace?
+  folder    Folder?
+
+  permissions ElementPermission[]
+  inboxItems  InboxItem[]
+  owners      ElementOwner[]
+
+  @@index([name])
+  @@index([type, slug])
+  @@index([access])
+  @@index([createdById])
+  @@index([status, type])
+  @@index([access, status, type])
+  @@index([createdById, status, type])
+  @@index([type, status, createdAt])
+}
+
+enum ElementPermissionRole {
+  Viewer
+  Editor
+  Admin
+  Owner
+}
+
+model ElementPermission {
+  id          String                @id @default(cuid())
+  elementId   String
+  userId      String
+  createdById String?
+  role        ElementPermissionRole
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  element   Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  user      User    @relation("PermissionAccess", fields: [userId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation("PermissionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([elementId, userId])
+  @@index([userId])
+  @@index([userId, role])
+}
+
+model ElementOwner {
+  elementId   String
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  element            Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  owner              User    @relation("ElementOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownershipCreatedBy User?   @relation("ElementOwnershipCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([elementId, ownerId])
+  @@index([elementId])
+  @@index([ownerId])
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  elementId String  @unique
+  element   Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
+
+  members               WorkspaceMembership[]
+  invitations           WorkspaceMembershipInvitation[]
+  Folder                Folder[]
+  currentUserWorkspaces UserPreference[]
+}
+
+enum WorkspaceMembershipRole {
+  Owner
+  Admin
+  Editor
+  Member
+  Guest
+}
+
+enum WorkspaceMembershipStatus {
+  Pending
+  Active
+  Inactive
+  Blocked
+}
+
+model WorkspaceMembership {
+  id          String                    @id @default(cuid())
+  workspaceId String
+  memberId    String
+  role        WorkspaceMembershipRole   @default(Member)
+  status      WorkspaceMembershipStatus @default(Pending)
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  member    User      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, memberId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, role, status])
+  @@index([workspaceId, memberId, status])
+  @@index([memberId, status])
+}
+
+enum InvitationStatus {
+  Pending
+  Accepted
+  Expired
+  Cancelled
+}
+
+model WorkspaceMembershipInvitation {
+  id            String                  @id @default(cuid())
+  workspaceId   String
+  invitedUserId String? // nullable for email-only invites
+  email         String? // used if invitedUser is null
+  invitedById   String
+  role          WorkspaceMembershipRole
+  status        InvitationStatus        @default(Pending)
+  token         String                  @unique
+  expiresAt     DateTime
+  acceptedAt    DateTime?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy   User      @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedUser User?     @relation("InvitedUser", fields: [invitedUserId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, invitedUserId])
+  @@index([workspaceId, status])
+  @@index([invitedUserId])
+}
+
+model Folder {
+  id             String   @id @default(cuid())
+  workspaceId    String
+  parentFolderId String?
+  depth          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  elementId      String   @unique
+
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parentFolder Folder?   @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  element      Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
+
+  childFolders Folder[] @relation("ParentFolder")
+
+  @@index([workspaceId])
+  @@index([parentFolderId])
+  @@index([parentFolderId, workspaceId])
+}
+
+enum InboxItemType {
+  Notification
+  Invitation
+  Application
+  Comment
+  Mention
+  Alert
+  Task
+}
+
+enum InboxItemStatus {
+  Unread
+  Read
+  Archived
+  Dismissed
+}
+
+model InboxItem {
+  id          String          @id @default(cuid())
+  type        InboxItemType
+  status      InboxItemStatus @default(Unread)
+  title       String
+  body        String?
+  metadata    Json? // optional: for linking to entity IDs, URLs, etc.
+  actionUrl   String? // optional: for frontend redirection
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  readAt      DateTime?
+  senderId    String?
+  recipientId String?
+  elementId   String?
+
+  sender    User?    @relation("InboxSender", fields: [senderId], references: [id], onDelete: SetNull)
+  recipient User?    @relation("InboxRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  element   Element? @relation(fields: [elementId], references: [id], onDelete: SetNull)
+
+  @@index([senderId, status])
+  @@index([recipientId, status])
+  @@index([type])
+}
