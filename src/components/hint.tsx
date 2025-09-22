@@ -17,7 +17,10 @@ const Hint = ({ tooltip, className, children, side = "top" }: Props) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent className={cn(className)} side={side}>
+        <TooltipContent
+          className={cn(className, "px-4 py-2.5 text-sm shadow-lg")}
+          side={side}
+        >
           {tooltip}
         </TooltipContent>
       </Tooltip>

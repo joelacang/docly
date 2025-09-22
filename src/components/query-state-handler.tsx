@@ -18,7 +18,7 @@ export function QueryStateHandler<T>({
   if (isLoading) {
     if (typeof loadingLabel === "string") {
       return (
-        <Centered>
+        <Centered className="py-8">
           <Loading label={loadingLabel} />
         </Centered>
       );
@@ -29,7 +29,7 @@ export function QueryStateHandler<T>({
 
   if (isError) {
     return (
-      <Centered>
+      <Centered className="py-8">
         <AlertMessage
           title={errorTitle ?? "Error Performing Action"}
           description={errorMessage ?? "An unknown error occurred."}
@@ -41,14 +41,14 @@ export function QueryStateHandler<T>({
 
   if (!data || (Array.isArray(data) && !data.length)) {
     return (
-      <Centered>
+      <Centered className="py-8">
         <AlertMessage
           title={emptyTitle ?? "No Result Found."}
           description={
             emptyDescription ??
             "Sorry, there are no results with your request. Try again later."
           }
-          mode={Mode.DEFAULT}
+          mode={Mode.ERROR}
           icon={SearchXIcon}
         />
       </Centered>

@@ -8,7 +8,7 @@ interface Props extends HTMLProps<HTMLDivElement> {
 }
 const Navbar = ({ children, className, ...props }: Props) => {
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+    <nav className="bg-main-bg supports-[backdrop-filter]:bg-main-bg/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <div
         className={cn("container mx-auto flex w-full items-center", className)}
         {...props}

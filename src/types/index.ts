@@ -23,6 +23,7 @@ export type MenuItem = {
   action?: () => void;
   hasSeparator?: boolean;
   subMenus?: MenuItem[];
+  showDropdownButton?: boolean;
 };
 
 export enum SIZE {

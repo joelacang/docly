@@ -17,7 +17,7 @@ const UserAvatar = ({ user, size = SIZE.MEDIUM }: Props) => {
       <AvatarImage />
       <AvatarFallback
         className={cn(
-          "bg-gradient-to-b from-green-400 to-green-700 font-semibold text-white",
+          "bg-gradient-to-b from-blue-400 to-blue-600 font-semibold text-white",
           currentTextSize,
         )}
       >

@@ -1,25 +1,31 @@
+import { createElement } from "@/server/helper-functions/element";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
-  createElement,
-  ElementPreviewPrismaSelection,
-} from "@/server/helper-functions/element";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import type { WorkspaceMembership, WorkspacePreview } from "@/types/workspace";
+  createWorkspaceSchema,
+  type WorkspaceMembership,
+  type WorkspacePreview,
+} from "@/types/workspace";
 import {
-  ElementAccess,
   ElementStatus,
   ElementType,
   WorkspaceMembershipRole,
   WorkspaceMembershipStatus,
+  WorkspaceType,
 } from "@prisma/client";
-import { createElementSchema } from "@/types/element";
 import { createWorkspace } from "@/server/helper-functions/workspace";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import {
+  convertToWorkspaceMembership,
+  ElementPreviewPrismaSelection,
+  WorkspaceMembershipPrismaSelection,
+} from "@/server/helper-functions/prisma";
+import { getWorkspaceAccess } from "@/utils";
 
 export const workspaceRouter = createTRPCRouter({
   //Mutations
   create: protectedProcedure
-    .input(createElementSchema)
+    .input(createWorkspaceSchema)
     .mutation(async ({ ctx, input }) => {
       try {
         const results = await ctx.db.$transaction(async (tx) => {
@@ -33,6 +39,7 @@ export const workspaceRouter = createTRPCRouter({
             elementId: element.id,
             loggedUserId: ctx.session.user.id,
             transaction: tx,
+            workspaceType: input.type,
           });
 
           return workspace;
@@ -40,10 +47,10 @@ export const workspaceRouter = createTRPCRouter({
 
         return results;
       } catch (error) {
-        console.error(`Error Creating ${input.type}: `, error);
+        console.error(`Error Creating ${input.elementType}: `, error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to create ${input.type}. An unknown error occurred.`,
+          message: `Failed to create ${input.elementType}. An unknown error occurred.`,
           cause: error,
         });
       }
@@ -64,38 +71,54 @@ export const workspaceRouter = createTRPCRouter({
           },
         },
       },
-      select: {
-        id: true,
-        role: true,
-        status: true,
-        workspace: {
-          select: {
-            id: true,
-            element: {
-              select: ElementPreviewPrismaSelection,
-            },
-          },
-        },
-      },
+      select: WorkspaceMembershipPrismaSelection,
       orderBy: {
         createdAt: "asc",
       },
     });
 
-    const myWorkspaces: WorkspaceMembership[] = data.map((d) => ({
-      workspace: {
-        id: d.workspace.id,
-        element: d.workspace.element,
-      },
-      membership: {
-        id: d.id,
-        role: d.role,
-        status: d.status,
-      },
-    }));
+    const myWorkspaces: WorkspaceMembership[] = data.map((w) => {
+      const membershipData = convertToWorkspaceMembership(w);
 
-    return myWorkspaces;
+      return { ...membershipData, access: getWorkspaceAccess(membershipData) };
+    });
+
+    const pref = await ctx.db.userPreference.findUnique({
+      where: { userId: ctx.session.user.id },
+      select: {
+        lastVisitedWorkspace: true,
+      },
+    });
+
+    return {
+      myWorkspaces,
+      lastWorkspaceVisited: pref?.lastVisitedWorkspace ?? null,
+    };
   }),
+
+  getWorkspaceBySlug: protectedProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.db.workspaceMembership.findFirst({
+        where: {
+          workspace: {
+            element: {
+              slug: input.slug,
+            },
+          },
+        },
+        select: WorkspaceMembershipPrismaSelection,
+      });
+
+      if (!data) return null;
+
+      const membership = convertToWorkspaceMembership(data);
+
+      return {
+        ...membership,
+        access: getWorkspaceAccess(membership),
+      } satisfies WorkspaceMembership;
+    }),
 
   searchToJoin: protectedProcedure
     .input(z.object({ searchValue: z.string() }))
@@ -108,9 +131,9 @@ export const workspaceRouter = createTRPCRouter({
               mode: "insensitive",
             },
             type: ElementType.Workspace,
-            access: ElementAccess.Private,
             status: ElementStatus.Active,
           },
+          type: WorkspaceType.Private,
           NOT: {
             members: {
               some: {
@@ -121,6 +144,7 @@ export const workspaceRouter = createTRPCRouter({
         },
         select: {
           id: true,
+          type: true,
           element: {
             select: ElementPreviewPrismaSelection,
           },
@@ -130,6 +154,7 @@ export const workspaceRouter = createTRPCRouter({
       const workspaces: WorkspacePreview[] = data.map((w) => {
         return {
           id: w.id,
+          type: w.type,
           element: w.element,
         };
       });

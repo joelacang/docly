@@ -3,7 +3,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 interface Props {
   item: MenuItem;
@@ -22,7 +22,9 @@ const MyDropdownMenuItem = ({ item }: Props) => {
         }}
       >
         <div className="flex flex-row items-center justify-start gap-2">
-          {item.icon && <item.icon className="!size-5" />}
+          {item.icon && (
+            <item.icon className="hover:text-accent-foreground !size-5" />
+          )}
           <DropdownMenuLabel>{item.label}</DropdownMenuLabel>
         </div>
       </DropdownMenuItem>

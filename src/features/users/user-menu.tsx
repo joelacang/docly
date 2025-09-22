@@ -14,21 +14,27 @@ import {
   LightbulbIcon,
   LogOutIcon,
   MessageCircleIcon,
+  MoonIcon,
   SettingsIcon,
+  SunIcon,
   UserIcon,
 } from "lucide-react";
-import MyDropdownMenuItem from "@/components/my-dropdown-menu-item";
+import MyDropdownMenuItem from "@/components/custom/my-dropdown-menu-item";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
+import { useTheme } from "next-themes";
 
 const UserMenu = () => {
   const { loggedUser } = useAuth();
   const { onClear: onClearMyWorkspaces } = useMyWorkspaces();
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
+
+  const { theme, resolvedTheme, setTheme } = useTheme();
+
   const items: MenuItem[] = [
     {
       id: "inbox",
@@ -53,9 +59,12 @@ const UserMenu = () => {
     },
     {
       id: "switch-theme",
-      label: "Switch Theme",
-      icon: LightbulbIcon,
+      label: `Switch to ${resolvedTheme === "light" ? "Dark Mode" : "Light Mode"}`,
+      icon: resolvedTheme === "light" ? MoonIcon : SunIcon,
       hasSeparator: true,
+      action: () => {
+        setTheme(resolvedTheme === "light" ? "dark" : "light");
+      },
     },
     {
       id: "logout",

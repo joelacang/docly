@@ -31,13 +31,13 @@ const WorkspaceAvatar = ({
       <Button
         className={cn(
           avatarSize,
-          "cursor-pointer overflow-hidden rounded-lg transition-all duration-300 ease-in-out",
+          "border-spacing-1.5 cursor-pointer overflow-hidden rounded-lg border-transparent transition-all duration-300 ease-in-out",
           "hover:scale-110 hover:rounded-sm hover:shadow-lg hover:shadow-black/20",
           "active:scale-95 active:shadow-inner",
           "transform-gpu", // Hardware acceleration for smoother animations
           isCurrent &&
             !disabled && [
-              "ring-offset-background ring-3 ring-emerald-500 ring-offset-2",
+              "ring-offset-background ring-3 ring-blue-500 ring-offset-2",
               "shadow-lg shadow-blue-500/20",
               "rounded-sm",
             ],
@@ -46,7 +46,7 @@ const WorkspaceAvatar = ({
         variant="ghost"
         size="icon"
         onClick={() => {
-          router.push(`/Workspace/${workspace.element.slug}`);
+          router.push(`/workspace/${workspace.element.slug}`);
         }}
       >
         {workspace.element.avatarUrl ? (

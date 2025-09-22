@@ -39,9 +39,7 @@ const CollectionCategorySection = ({ category }: Props) => {
             <Icon className="size-4" />
           </div>
 
-          <p className="text-muted-foreground text-lg font-semibold">
-            {category.name}
-          </p>
+          <p className="text-lg font-semibold">{category.name}</p>
           {open ? <ChevronDownIcon /> : <ChevronRightIcon />}
         </Button>
       </CollapsibleTrigger>

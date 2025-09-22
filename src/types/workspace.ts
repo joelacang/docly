@@ -1,19 +1,36 @@
-import type {
-  WorkspaceMembershipRole,
-  WorkspaceMembershipStatus,
+import {
+  WorkspaceType,
+  type WorkspaceMembershipRole,
+  type WorkspaceMembershipStatus,
 } from "@prisma/client";
-import type { ElementDetail, ElementPreview } from "./element";
+import { createElementBaseSchema, type ElementPreview } from "./element";
+import z from "zod";
 
 export type WorkspacePreview = {
   id: string;
+  type: WorkspaceType;
   element: ElementPreview;
+};
+export type MembershipPreview = {
+  id: string;
+  role: WorkspaceMembershipRole;
+  status: WorkspaceMembershipStatus;
 };
 
 export type WorkspaceMembership = {
   workspace: WorkspacePreview;
-  membership: {
-    id: string;
-    role: WorkspaceMembershipRole;
-    status: WorkspaceMembershipStatus;
-  };
+  membership: MembershipPreview | null;
+  access?: Access;
 };
+
+export enum Access {
+  OWNER = 4,
+  ADMIN = 3,
+  EDIT = 2,
+  READ_ONLY = 1,
+  NO_ACCESS = 0,
+}
+
+export const createWorkspaceSchema = createElementBaseSchema.extend({
+  type: z.enum(WorkspaceType),
+});

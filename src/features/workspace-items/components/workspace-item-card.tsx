@@ -25,7 +25,7 @@ const WorkspaceItemCard = ({ item, onClick }: Props) => {
       <div className="flex h-8 items-center justify-center">
         <item.icon
           color={color.primary}
-          fill={color.light}
+          fill={color.lightest}
           className="size-8 shrink-0 transition-transform"
         />
       </div>

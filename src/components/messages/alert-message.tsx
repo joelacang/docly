@@ -12,6 +12,7 @@ interface Props {
   icon?: LucideIcon;
   children?: React.ReactNode;
   className?: string;
+  dashed?: boolean;
 }
 
 const AlertMessage = ({
@@ -20,6 +21,7 @@ const AlertMessage = ({
   mode = Mode.DEFAULT,
   icon,
   children,
+  dashed = false,
   className,
 }: Props) => {
   const Icon = icon ?? getModeIcon(mode);
@@ -27,8 +29,9 @@ const AlertMessage = ({
   return (
     <div
       className={cn(
-        "flex max-w-sm flex-col items-center justify-center gap-4 py-8",
+        "flex max-w-sm flex-col items-center justify-center gap-4 rounded-lg py-8",
         className,
+        dashed && "border-3 border-dashed",
       )}
     >
       <Icon className="size-10" color={color} />

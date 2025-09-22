@@ -7,6 +7,7 @@ import {
 import SidebarMenuButton from "@/features/sidebar/components/sibebar-menu-button";
 
 import type { MenuItem } from "@/types";
+import { Colors } from "@/utils/colors";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -23,11 +24,12 @@ interface Props {
 
 const SidebarSection = ({ name, icon: Icon, items, empty }: Props) => {
   const [open, setOpen] = useState(true);
+
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger asChild>
         <Button className="" variant="ghost">
-          <div className="text-muted-foreground flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-2">
             {Icon && <Icon className="h-4 w-4" />}
             <p className="text-sm font-semibold">{name}</p>
           </div>
@@ -36,7 +38,7 @@ const SidebarSection = ({ name, icon: Icon, items, empty }: Props) => {
       </CollapsibleTrigger>
       <CollapsibleContent>
         {items.length ? (
-          <div>
+          <div className="pl-4">
             {items.map((item) => (
               <SidebarMenuButton key={item.id} item={item} />
             ))}

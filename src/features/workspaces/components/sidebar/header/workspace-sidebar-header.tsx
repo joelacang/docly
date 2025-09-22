@@ -10,7 +10,10 @@ const WorkspaceSidebarHeader = () => {
     <div className="flex flex-row border-b p-4">
       {currentWorkspace ? (
         <div className="flex items-center justify-between gap-4">
-          <WorkspaceBadge workspace={currentWorkspace.workspace} />
+          <WorkspaceBadge
+            workspace={currentWorkspace.workspace}
+            membership={currentWorkspace.membership}
+          />
           <ChevronDown />
         </div>
       ) : (

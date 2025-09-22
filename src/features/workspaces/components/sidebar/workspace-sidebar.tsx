@@ -11,10 +11,10 @@ const WorkspaceSidebar = () => {
   const { currentWorkspace } = useMyWorkspaces();
   return (
     <div
-      className={cn("bg-sidebar min-h-full w-full", open ? "block" : "hidden")}
-      style={{
-        borderRightColor: "#E2E8F0",
-      }}
+      className={cn(
+        "bg-sidebar-bg min-h-full w-full",
+        open ? "block" : "hidden",
+      )}
     >
       {/* HEADER */}
       <WorkspaceSidebarHeader />

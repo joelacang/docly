@@ -1,26 +1,36 @@
-import type { WorkspaceMembership } from "@/types/workspace";
+import { Access, type WorkspaceMembership } from "@/types/workspace";
 import {
   WorkspaceMembershipRole,
   WorkspaceMembershipStatus,
+  type WorkspaceType,
   type Prisma,
 } from "@prisma/client";
-import { ElementPreviewPrismaSelection } from "./element";
+import { db } from "../db";
+import { getWorkspaceAccess } from "@/utils";
+import {
+  ElementPreviewPrismaSelection,
+  WorkspaceMembershipPrismaSelection,
+} from "./prisma";
 
 export async function createWorkspace({
   elementId,
+  workspaceType,
   loggedUserId,
   transaction,
 }: {
   elementId: string;
   loggedUserId: string;
   transaction: Prisma.TransactionClient;
+  workspaceType: WorkspaceType;
 }): Promise<WorkspaceMembership> {
   const workspace = await transaction.workspace.create({
     data: {
       elementId,
+      type: workspaceType,
     },
     select: {
       id: true,
+      type: true,
       element: {
         select: ElementPreviewPrismaSelection,
       },
@@ -46,5 +56,41 @@ export async function createWorkspace({
     membership,
   };
 
-  return workspaceMembership;
+  return {
+    ...workspaceMembership,
+    access: getWorkspaceAccess(workspaceMembership),
+  };
+}
+
+export async function getWorkspaceMembership({
+  workspaceId,
+  userId,
+}: {
+  workspaceId: string;
+  userId: string;
+}): Promise<WorkspaceMembership | null> {
+  const data = await db.workspaceMembership.findFirst({
+    where: {
+      workspaceId,
+      memberId: userId,
+    },
+    select: WorkspaceMembershipPrismaSelection,
+  });
+
+  if (!data) return null;
+
+  const details: WorkspaceMembership = {
+    workspace: {
+      id: data.workspace.id,
+      type: data.workspace.type,
+      element: data.workspace.element,
+    },
+    membership: {
+      id: data.id,
+      role: data.role,
+      status: data.status,
+    },
+  };
+
+  return { ...details, access: getWorkspaceAccess(details) };
 }

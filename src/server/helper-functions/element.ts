@@ -1,4 +1,4 @@
-import type { CreateElement } from "@/types/element";
+import type { CreateBaseElement } from "@/types/element";
 import type { Element, Prisma } from "@prisma/client";
 import { generateSlug } from ".";
 
@@ -7,11 +7,11 @@ export async function createElement({
   transaction,
   loggedUserId,
 }: {
-  data: CreateElement;
+  data: CreateBaseElement;
   transaction: Prisma.TransactionClient;
   loggedUserId: string;
 }): Promise<Element> {
-  const { otherOwnerIds, ...otherFields } = data;
+  const { elementType, ...otherFields } = data;
 
   console.log({ loggedUserId, slug: generateSlug(data.name) });
   const element = await transaction.element.create({
@@ -19,6 +19,7 @@ export async function createElement({
       ...otherFields,
       slug: generateSlug(data.name),
       createdById: loggedUserId,
+      type: elementType,
     },
   });
 
@@ -30,25 +31,5 @@ export async function createElement({
     },
   });
 
-  if (data.otherOwnerIds.length) {
-    await transaction.elementOwner.createMany({
-      data: otherOwnerIds.map((ownerId) => ({
-        elementId: element.id,
-        ownerId,
-        createdById: loggedUserId,
-      })),
-    });
-  }
-
   return element;
 }
-
-export const ElementPreviewPrismaSelection = {
-  id: true,
-  name: true,
-  slug: true,
-  status: true,
-  access: true,
-  type: true,
-  color: true,
-};

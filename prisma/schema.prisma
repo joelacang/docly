@@ -42,8 +42,6 @@ model User {
   invites                  WorkspaceMembershipInvitation[] @relation("InvitedUser")
   inboxItemsSent           InboxItem[]                     @relation("InboxSender")
   inboxItemsReceived       InboxItem[]                     @relation("InboxRecipient")
-  permissionsCreated       ElementPermission[]             @relation("PermissionCreator")
-  permissionAccesses       ElementPermission[]             @relation("PermissionAccess")
   elementsOwned            ElementOwner[]                  @relation("ElementOwner")
   elementOwnershipsCreated ElementOwner[]                  @relation("ElementOwnershipCreator")
   preference               UserPreference?
@@ -118,6 +116,7 @@ model UserPreference {
   currentWorkspaceId       String?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
+  lastVisitedWorkspace     String?
 
   user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   currentWorkspace Workspace? @relation(fields: [currentWorkspaceId], references: [id], onDelete: SetNull)
@@ -164,12 +163,10 @@ enum ElementStatus {
   Draft
 }
 
-enum ElementAccess {
+enum WorkspaceType {
   Private //Only members
   Personal //Only creator
   Public //Everyone
-  Custom //Only those selected
-  Admin //Only users with Admin Role can access
 }
 
 enum Color {
@@ -192,7 +189,6 @@ model Element {
   slug        String        @unique
   description String?
   status      ElementStatus @default(Active)
-  access      ElementAccess
   type        ElementType
   color       Color
   avatarUrl   String?
@@ -205,44 +201,15 @@ model Element {
   workspace Workspace?
   folder    Folder?
 
-  permissions ElementPermission[]
-  inboxItems  InboxItem[]
-  owners      ElementOwner[]
+  inboxItems InboxItem[]
+  owners     ElementOwner[]
 
   @@index([name])
   @@index([type, slug])
-  @@index([access])
   @@index([createdById])
   @@index([status, type])
-  @@index([access, status, type])
   @@index([createdById, status, type])
   @@index([type, status, createdAt])
-}
-
-enum ElementPermissionRole {
-  Viewer
-  Editor
-  Admin
-  Owner
-}
-
-model ElementPermission {
-  id          String                @id @default(cuid())
-  elementId   String
-  userId      String
-  createdById String?
-  role        ElementPermissionRole
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  element   Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
-  user      User    @relation("PermissionAccess", fields: [userId], references: [id], onDelete: Cascade)
-  createdBy User?   @relation("PermissionCreator", fields: [createdById], references: [id], onDelete: SetNull)
-
-  @@unique([elementId, userId])
-  @@index([userId])
-  @@index([userId, role])
 }
 
 model ElementOwner {
@@ -262,17 +229,20 @@ model ElementOwner {
 }
 
 model Workspace {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String        @id @default(cuid())
+  type      WorkspaceType
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   elementId String  @unique
   element   Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
   members               WorkspaceMembership[]
   invitations           WorkspaceMembershipInvitation[]
-  Folder                Folder[]
+  folders               Folder[]
   currentUserWorkspaces UserPreference[]
+
+  @@index([type])
 }
 
 enum WorkspaceMembershipRole {

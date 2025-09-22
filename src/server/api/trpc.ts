@@ -6,13 +6,18 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC, TRPCError, type TRPC_ERROR_CODE_KEY } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 import { db } from "@/server/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Z } from "node_modules/better-auth/dist/shared/better-auth.B2AIpsP8";
+import { getWorkspaceMembership } from "../helper-functions/workspace";
+import { getWorkspaceAccess } from "@/utils";
+import { Access } from "@/types/workspace";
+import { unAuthorized } from "../helper-functions";
 
 /**
  * 1. CONTEXT
@@ -110,40 +115,78 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
-export const protectedProcedure = t.procedure
-  .use(timingMiddleware)
-  .use(async ({ ctx, next }) => {
-    if (!ctx.session?.user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You must be logged in to access this resource.",
-      });
-    }
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to access this resource.",
+    });
+  }
 
-    const user = await ctx.db.user.findUnique({
-      where: { id: ctx.session.user.id },
-      select: {
-        role: true,
+  const user = await ctx.db.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: {
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to use this resource",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      session: {
+        ...ctx.session,
+        user: {
+          ...ctx.session.user,
+          role: user.role,
+        },
       },
+    },
+  });
+});
+
+export const workspaceReadProcedure = protectedProcedure
+  .use(timingMiddleware)
+  .input(z.object({ workspaceId: z.cuid() }))
+  .use(async ({ ctx, input, next }) => {
+    const details = await getWorkspaceMembership({
+      workspaceId: input.workspaceId,
+      userId: ctx.session.user.id,
     });
 
-    if (!user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You must be logged in to use this resource",
-      });
-    }
+    if (!details) throw new TRPCError(unAuthorized);
+
+    if (details.access === Access.NO_ACCESS) throw new TRPCError(unAuthorized);
 
     return next({
       ctx: {
         ...ctx,
         session: {
           ...ctx.session,
-          user: {
-            ...ctx.session.user,
-            role: user.role,
-          },
+          workspaceMembership: details,
         },
       },
     });
   });
+
+export const workspaceEditProcedure = workspaceReadProcedure.use(
+  ({ ctx, next }) => {
+    const membership = ctx.session.workspaceMembership;
+
+    const access = getWorkspaceAccess(membership);
+
+    const canEdit = access > Access.READ_ONLY;
+
+    if (!canEdit) throw new TRPCError(unAuthorized);
+
+    return next({
+      ctx,
+    });
+  },
+);

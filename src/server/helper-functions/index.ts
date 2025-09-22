@@ -1,3 +1,5 @@
+import type { TRPC_ERROR_CODE_KEY, TRPCError } from "@trpc/server";
+
 export function generateSlug(text: string): string {
   const cleanedText = text
     .toLowerCase()
@@ -18,3 +20,17 @@ export function generateId(length: number): string {
   }
   return result;
 }
+
+export const unAuthorized = {
+  code: "UNAUTHORIZED" as TRPC_ERROR_CODE_KEY,
+  message: "You are not allowed to perform this procedure.",
+};
+
+export const unknownError = (error: Error) => {
+  return {
+    name: "unknownError",
+    code: "INTERNAL_SERVER_ERROR",
+    message: "An unknown error occurred",
+    cause: error,
+  } satisfies TRPCError;
+};

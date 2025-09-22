@@ -7,7 +7,7 @@ import { useWorkspaceSidebar } from "@/features/workspaces/hooks/use-workspace-s
 import WorkspaceSidebar from "@/features/workspaces/components/sidebar/workspace-sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { WorkspaceProvider } from "@/providers/workspace-provider";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   children: React.ReactNode;
@@ -15,13 +15,10 @@ interface Props {
 const SiteLayout = ({ children }: Props) => {
   const { open } = useWorkspaceSidebar();
   const isMobile = useIsMobile();
+  const { currentWorkspace } = useMyWorkspaces();
   return (
-    <WorkspaceProvider>
-      <div className="flex h-svh flex-row">
-        <div className="sticky top-0 left-0 min-h-full">
-          <Dock />
-        </div>
-
+    <div className="flex h-svh w-full flex-row">
+      {currentWorkspace && (
         <div
           className={cn(
             open ? "w-80 border-r" : "w-0",
@@ -31,19 +28,20 @@ const SiteLayout = ({ children }: Props) => {
         >
           <WorkspaceSidebar />
         </div>
-        {/* <AppSidebar /> */}
-        <div className="flex w-full flex-1 flex-col items-center justify-start">
-          <Navbar>
-            <NavbarContent />
-          </Navbar>
-          <div className="flex h-[calc(100vh-40px)] w-full flex-col items-center justify-center overflow-y-auto">
-            <div className="container flex h-full w-full flex-col">
-              {children}
-            </div>
+      )}
+
+      {/* <AppSidebar /> */}
+      <div className="bg-main-bg flex w-full flex-1 flex-col items-center justify-start">
+        <Navbar>
+          <NavbarContent />
+        </Navbar>
+        <div className="flex h-[calc(100vh-40px)] w-full flex-col items-center justify-center overflow-y-auto">
+          <div className="container flex h-full w-full flex-col">
+            {children}
           </div>
         </div>
       </div>
-    </WorkspaceProvider>
+    </div>
   );
 };
 

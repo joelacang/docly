@@ -1,3 +1,4 @@
+"use client";
 import { EyeIcon, EyeOffIcon, XIcon, type LucideIcon } from "lucide-react";
 import { useState, type HTMLProps } from "react";
 import { Input } from "../ui/input";

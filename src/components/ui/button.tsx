@@ -18,11 +18,13 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "hover:bg-accent-neutral hover:text-accent-neutral-foreground dark:hover:bg-accent-neutral",
         link: "text-primary underline-offset-4 hover:underline",
-        green: "bg-gradient-to-br from-emerald-400 to-green-600 text-white",
-        error: "bg-gradient-to-br from-rose-400 to-red-600 text-white",
-        blue: "bg-gradient-to-br from-sky-400 to-blue-600 text-white active:scale-95",
+        green:
+          "bg-gradient-to-br from-emerald-400 to-green-600 text-white hover:from-emerald-500 hover:to-green-700 active:from-emerald-600 active:to-green-800 dark:hover:from-emerald-300 dark:hover:to-green-500 dark:active:from-emerald-400 dark:active:to-green-600",
+        error:
+          "bg-gradient-to-br from-rose-400 to-red-600 text-white hover:from-rose-500 hover:to-red-700 active:from-rose-600 active:to-red-800 dark:hover:from-rose-300 dark:hover:to-red-500 dark:active:from-rose-400 dark:active:to-red-600",
+        blue: "bg-gradient-to-br from-sky-400 dark:from-sky-600 to-blue-600 dark:to-blue-800 text-white active:scale-95 hover:from-sky-500 hover:to-blue-700 active:from-sky-600 active:to-blue-800 dark:hover:from-sky-700 dark:hover:to-blue-900 dark:active:from-sky-400 dark:active:to-blue-600 ",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

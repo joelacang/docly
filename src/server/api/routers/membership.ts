@@ -5,8 +5,11 @@ import {
   WorkspaceMembershipRole,
   WorkspaceMembershipStatus,
 } from "@prisma/client";
-import { ElementPreviewPrismaSelection } from "@/server/helper-functions/element";
 import type { WorkspaceMembership } from "@/types/workspace";
+import {
+  ElementPreviewPrismaSelection,
+  WorkspaceMembershipPrismaSelection,
+} from "@/server/helper-functions/prisma";
 
 export const membershipRouter = createTRPCRouter({
   join: protectedProcedure
@@ -48,25 +51,14 @@ export const membershipRouter = createTRPCRouter({
               role: WorkspaceMembershipRole.Member,
               status: WorkspaceMembershipStatus.Active,
             },
-            select: {
-              id: true,
-              role: true,
-              status: true,
-              workspace: {
-                select: {
-                  id: true,
-                  element: {
-                    select: ElementPreviewPrismaSelection,
-                  },
-                },
-              },
-            },
+            select: WorkspaceMembershipPrismaSelection,
           });
 
           const membership: WorkspaceMembership = {
             workspace: {
               id: m.workspace.id,
               element: m.workspace.element,
+              type: m.workspace.type,
             },
             membership: {
               id: m.id,

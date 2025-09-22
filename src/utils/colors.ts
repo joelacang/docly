@@ -101,6 +101,41 @@ export const Colors: Record<Color, ColorPalette> = {
   },
 };
 
+export const FOREGROUND_LIGHT: ColorPalette = {
+  lightest: "#1F2937", // Primary text
+  light: "#374151", // Secondary text
+  primary: "#111827", // Emphasis text
+  dark: "#6B7280", // Muted text
+  darkest: "#9CA3AF", // Disabled text
+  accent: "#3B82F6", // Accent text
+};
+
+export const FOREGROUND_DARK: ColorPalette = {
+  lightest: "#F9FAFB", // Primary text
+  light: "#F3F4F6", // Secondary text
+  primary: "#FFFFFF", // Emphasis text
+  dark: "#D1D5DB", // Muted text
+  darkest: "#9CA3AF", // Disabled text
+  accent: "#60A5FA", // Accent text
+};
+
+export const BACKGROUND_LIGHT: ColorPalette = {
+  lightest: "#EFF6FF",
+  light: "#DBEAFE",
+  primary: "#3B82F6",
+  dark: "#1D4ED8",
+  darkest: "#1E3A8A",
+  accent: "#60A5FA",
+};
+
+export const BACKGROUND_DARK: ColorPalette = {
+  lightest: "#1F2937", // Lightest dark surface
+  light: "#374151", // Card backgrounds
+  primary: "#111827", // Main background
+  dark: "#0F172A", // Darker sections
+  darkest: "#020617", // Deepest backgrounds
+  accent: "#1E40AF", // Accent backgrounds
+};
 // Helper function to get color values
 export const getColorValue = (
   color: Color,

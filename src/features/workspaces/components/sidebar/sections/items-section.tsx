@@ -3,9 +3,15 @@ import SidebarSection from "./sidebar-section";
 import { Button } from "@/components/ui/button";
 import AlertMessage from "@/components/messages/alert-message";
 import { useAddItemDialog } from "@/features/workspace-items/hooks/use-add-item-dialog";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
+import { Access } from "@/types/workspace";
 
 const ItemsSection = () => {
   const { onOpen } = useAddItemDialog();
+  const { currentWorkspace } = useMyWorkspaces();
+  const isEditor =
+    currentWorkspace?.access && currentWorkspace.access >= Access.EDIT;
+
   return (
     <SidebarSection
       name="ITEMS"
@@ -16,12 +22,14 @@ const ItemsSection = () => {
           title="No Items Found For this Workspace"
           description=""
           icon={SearchXIcon}
-          className="bg-muted rounded-lg border"
+          dashed
         >
-          <Button variant="blue" onClick={onOpen}>
-            <PlusIcon />
-            Add Item
-          </Button>
+          {isEditor && (
+            <Button variant="blue" onClick={onOpen}>
+              <PlusIcon />
+              Add Item
+            </Button>
+          )}
         </AlertMessage>
       }
     />

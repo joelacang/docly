@@ -12,12 +12,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useJoinWorkspaceDialog } from "../../hooks/use-join-workspace-dialog";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   workspaceId: string;
+  label?: string;
 }
-const JoinWorkspaceButton = ({ workspaceId }: Props) => {
+const JoinWorkspaceButton = ({ workspaceId, label = "Join" }: Props) => {
   const [isJoined, setIsJoined] = useState(false);
+  const { setCurrentWorkspace } = useMyWorkspaces();
   const { onPending, onCompleted } = useJoinWorkspaceDialog();
   const router = useRouter();
   const { mutate: joinWorkspace, isPending } =
@@ -37,25 +40,16 @@ const JoinWorkspaceButton = ({ workspaceId }: Props) => {
               title={`Successfully joined ${response.workspace.element.name}`}
               message={`Congratulations! You are now a member of ${response.workspace.element.name}. Click 'Go To Workspace' to start working.`}
               mode={Mode.SUCCESS}
-              footer={
-                <Button
-                  onClick={() =>
-                    router.push(`/Workspace/${response.workspace.element.slug}`)
-                  }
-                  variant="blue"
-                >
-                  <ArrowRightIcon />
-                  Go To Workspace
-                </Button>
-              }
             />
           ));
           apiUtils.workspace.getMyWorkspaces.setData(undefined, (prev) => {
             if (!prev) return prev;
-
-            return [...prev, response];
+            const updatedMyWorkspaces = [...prev.myWorkspaces, response];
+            return { ...prev, myWorkspaces: updatedMyWorkspaces };
           });
           setIsJoined(true);
+
+          setCurrentWorkspace(response);
         },
         onError: (error) => {
           toast.custom(() => (
@@ -87,7 +81,7 @@ const JoinWorkspaceButton = ({ workspaceId }: Props) => {
       ) : (
         <UserPlusIcon />
       )}
-      {isPending ? "Joining..." : isJoined ? "Joined" : "Join"}
+      {isPending ? `Joining...` : isJoined ? "Joined" : label}
     </Button>
   );
 };

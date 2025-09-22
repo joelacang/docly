@@ -1,42 +1,24 @@
 import {
+  type CollectionType,
   Color,
-  ElementAccess,
+  type EntryType,
   type ElementStatus,
   ElementType,
   type Element,
-  type CollectionType,
-  type EntryType,
 } from "@prisma/client";
 import z from "zod";
 import type { User } from "./user";
 import type { LucideIcon } from "lucide-react";
 
-export const createElementSchema = z
-  .object({
-    name: z.string().min(4).max(124),
-    description: z.string().optional(),
-    access: z.nativeEnum(ElementAccess),
-    type: z.nativeEnum(ElementType),
-    color: z.nativeEnum(Color),
-    otherOwnerIds: z.array(z.string()),
-    workspaceId: z.string().cuid().optional(),
-    parentFolderId: z.string().cuid().optional(),
-    avatarUrl: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.type !== ElementType.Workspace) {
-        return !!data.workspaceId;
-      }
-      return true;
-    },
-    {
-      message: "workspaceId is required",
-      path: ["workspaceId"],
-    },
-  );
+export const createElementBaseSchema = z.object({
+  name: z.string().min(4).max(124),
+  description: z.string().optional(),
+  elementType: z.enum(ElementType),
+  color: z.enum(Color),
+  avatarUrl: z.string().optional(),
+});
 
-export type CreateElement = z.infer<typeof createElementSchema>;
+export type CreateBaseElement = z.infer<typeof createElementBaseSchema>;
 
 export type ElementDetail = Element & {
   createdBy: User | null;
@@ -48,7 +30,6 @@ export type ElementPreview = {
   name: string;
   slug: string;
   status: ElementStatus;
-  access: ElementAccess;
   type: ElementType;
   color: Color;
   avatarUrl?: string | null;

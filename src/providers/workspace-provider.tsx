@@ -3,9 +3,18 @@
 import Centered from "@/components/layout/centered";
 import ErrorMessage from "@/components/messages/error-message";
 import LoadingMessage from "@/components/messages/loading-message";
+import NoWorkspaceMessage from "@/features/workspaces/components/messages/no-workspace-message";
 import { api } from "@/trpc/react";
 import type { WorkspaceMembership } from "@/types/workspace";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type WorkspaceContext = {
   myWorkspaces: WorkspaceMembership[];
@@ -30,23 +39,48 @@ interface Props {
 }
 
 export const WorkspaceProvider = ({ children }: Props) => {
-  const [myWorkspaces, setMyWorkspaces] = useState<WorkspaceMembership[]>([]);
   const [currentWorkspace, setCurrentWorkspace] =
     useState<WorkspaceMembership | null>(null);
+  const { workspaceSlug } = useParams();
+  const router = useRouter();
 
-  const onClear = () => {
-    setMyWorkspaces([]);
+  const onClear = useCallback(() => {
     setCurrentWorkspace(null);
-  };
+  }, []);
 
   const { data, isLoading, isError, error } =
     api.workspace.getMyWorkspaces.useQuery();
 
-  useEffect(() => {
-    if (!data) return;
+  const contextValue = useMemo(
+    () => ({
+      myWorkspaces: data?.myWorkspaces ?? [],
+      onClear,
+      currentWorkspace,
+      setCurrentWorkspace,
+    }),
+    [data?.myWorkspaces, onClear, currentWorkspace],
+  );
 
-    setMyWorkspaces(data);
-  }, [data]);
+  useEffect(() => {
+    if (isLoading || !data?.myWorkspaces) return;
+
+    if (workspaceSlug) {
+      const foundWorkspace = data.myWorkspaces.find(
+        (w) => w.workspace.element.slug === workspaceSlug,
+      );
+      setCurrentWorkspace(foundWorkspace ?? null);
+      return;
+    }
+
+    const targetSlug =
+      data.lastWorkspaceVisited ?? data.myWorkspaces[0]?.workspace.element.slug;
+
+    if (targetSlug) {
+      router.push(`/workspace/${targetSlug}`);
+    } else {
+      router.push("/no-workspace"); // ✅ Fixed: removed "-found"
+    }
+  }, [data, workspaceSlug, isLoading, router]);
 
   if (isLoading) {
     return <LoadingMessage message="Loading Your Workspaces..." />;
@@ -64,9 +98,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
   }
 
   return (
-    <WorkspaceContext.Provider
-      value={{ myWorkspaces, onClear, currentWorkspace, setCurrentWorkspace }}
-    >
+    <WorkspaceContext.Provider value={contextValue}>
       {children}
     </WorkspaceContext.Provider>
   );
