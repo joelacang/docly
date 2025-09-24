@@ -10,6 +10,7 @@ import { getWorkspaceAccess } from "@/utils";
 import {
   ElementPreviewPrismaSelection,
   WorkspaceMembershipPrismaSelection,
+  type WorkspaceMembershipSelected,
 } from "./prisma";
 
 export async function createWorkspace({
@@ -93,4 +94,20 @@ export async function getWorkspaceMembership({
   };
 
   return { ...details, access: getWorkspaceAccess(details) };
+}
+
+export function convertToWorkspaceMembership(
+  data: WorkspaceMembershipSelected,
+): WorkspaceMembership {
+  const { workspace, ...others } = data;
+
+  const result = {
+    workspace,
+    membership: others,
+  };
+
+  return {
+    ...result,
+    access: getWorkspaceAccess(result),
+  };
 }

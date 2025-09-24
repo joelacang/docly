@@ -1,14 +1,14 @@
 import { Mode } from "@/types";
 import { Color } from "@prisma/client";
 
-interface ColorPalette {
+export type ColorPalette = {
   lightest: string; // Very light background/surface
   light: string; // Light background/hover states
   primary: string; // Main/primary color
   dark: string; // Darker variant for emphasis
   darkest: string; // Darkest variant/text on light
   accent: string; // Complementary accent color
-}
+};
 
 export const Colors: Record<Color, ColorPalette> = {
   BLUE: {

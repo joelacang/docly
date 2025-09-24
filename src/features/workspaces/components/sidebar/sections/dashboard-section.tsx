@@ -10,6 +10,7 @@ import {
 import SidebarSection from "./sidebar-section";
 import { useRouter } from "next/navigation";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
+import SidebarMenuButton from "@/features/sidebar/components/sidebar-menu-button";
 
 const DashboardSection = () => {
   const { currentWorkspace } = useMyWorkspaces();
@@ -75,7 +76,13 @@ const DashboardSection = () => {
     },
   ];
   return (
-    <SidebarSection name="DASHBOARD" icon={LayoutDashboardIcon} items={items} />
+    <SidebarSection name="DASHBOARD" icon={LayoutDashboardIcon}>
+      <div className="space-y-1">
+        {items.map((item) => (
+          <SidebarMenuButton key={item.id} item={item} />
+        ))}
+      </div>
+    </SidebarSection>
   );
 };
 

@@ -10,6 +10,7 @@ export type QueryStateHandlerProps<T> = {
   emptyDescription?: string;
   errorTitle?: string;
   errorMessage?: string | null;
+  emptyContent?: React.ReactNode;
   children: (data: T) => React.ReactNode;
 };
 
@@ -24,6 +25,7 @@ export type MenuItem = {
   hasSeparator?: boolean;
   subMenus?: MenuItem[];
   showDropdownButton?: boolean;
+  mode?: "default" | "destructive";
 };
 
 export enum SIZE {

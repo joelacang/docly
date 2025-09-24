@@ -1,5 +1,6 @@
 "use client";
 
+import CollectionFormDialog from "@/features/collections/components/collection-form-dialog";
 import FolderFormDialog from "@/features/folders/components/folder-form-dialog";
 import JoinWorkspaceDialog from "@/features/membership/components/join-workspace/join-workspace-dialog";
 import AddWorkspaceItemDialog from "@/features/workspace-items/components/add-workspace-item-dialog";
@@ -17,6 +18,7 @@ const DialogProvider = () => {
       <AddWorkspaceItemDialog />
       <CreateWorkspaceDialog />
       <FolderFormDialog />
+      <CollectionFormDialog />
     </>
   );
 };

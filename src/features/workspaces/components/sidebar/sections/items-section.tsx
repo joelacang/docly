@@ -1,38 +1,40 @@
-import { Divide, ListIcon, PlusIcon, SearchXIcon } from "lucide-react";
+import { ListIcon, PlusIcon, SearchXIcon } from "lucide-react";
 import SidebarSection from "./sidebar-section";
-import { Button } from "@/components/ui/button";
-import AlertMessage from "@/components/messages/alert-message";
-import { useAddItemDialog } from "@/features/workspace-items/hooks/use-add-item-dialog";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import { Access } from "@/types/workspace";
 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import AlertMessage from "@/components/messages/alert-message";
+import AddItemButton from "@/features/workspace-items/components/add-item-button";
+import WorkspaceItemsList from "@/features/workspace-items/components/workspace-items-list";
+
 const ItemsSection = () => {
-  const { onOpen } = useAddItemDialog();
   const { currentWorkspace } = useMyWorkspaces();
-  const isEditor =
-    currentWorkspace?.access && currentWorkspace.access >= Access.EDIT;
+  const isEditor = Boolean(
+    currentWorkspace?.access && currentWorkspace.access >= Access.EDIT,
+  );
+  const [isEmpty, setIsEmpty] = useState(true);
 
   return (
     <SidebarSection
       name="ITEMS"
       icon={ListIcon}
-      items={[]}
-      empty={
-        <AlertMessage
-          title="No Items Found For this Workspace"
-          description=""
-          icon={SearchXIcon}
-          dashed
-        >
-          {isEditor && (
-            <Button variant="blue" onClick={onOpen}>
-              <PlusIcon />
-              Add Item
-            </Button>
-          )}
-        </AlertMessage>
-      }
-    />
+      showSettings={!isEmpty}
+      settings={<AddItemButton isCompact />}
+    >
+      <div className={cn(isEmpty && "my-2 rounded-xl border-2 border-dashed")}>
+        {currentWorkspace && (
+          <WorkspaceItemsList
+            parentFolderId={null}
+            workspaceId={currentWorkspace?.workspace.id}
+            isEditor={isEditor}
+            onEmpty={setIsEmpty}
+          />
+        )}
+      </div>
+    </SidebarSection>
   );
 };
 

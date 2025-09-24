@@ -21,7 +21,7 @@ const SiteLayout = ({ children }: Props) => {
       {currentWorkspace && (
         <div
           className={cn(
-            open ? "w-80 border-r" : "w-0",
+            open ? "w-80 border-r md:w-96" : "w-0",
             isMobile ? "hidden" : "block",
             "overflow-hidden transition-all duration-300 ease-in-out",
           )}

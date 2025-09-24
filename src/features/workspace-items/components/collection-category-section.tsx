@@ -10,12 +10,14 @@ import { COLLECTION_DISPLAYS } from "@/utils/elements";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import WorkspaceItemCard from "./workspace-item-card";
+import { useCollectionFormDialog } from "@/features/collections/hooks/use-collection-form-dialog";
 
 interface Props {
   category: CollectionCategory;
+  parentFolderId?: string | null;
 }
 
-const CollectionCategorySection = ({ category }: Props) => {
+const CollectionCategorySection = ({ category, parentFolderId }: Props) => {
   const [open, setOpen] = useState(true);
   const Icon = category.icon;
   const color = Colors[category.color];
@@ -23,6 +25,7 @@ const CollectionCategorySection = ({ category }: Props) => {
     (collection) => collection.category?.name === category.name,
   );
 
+  const { onOpen: openAddCollection } = useCollectionFormDialog();
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger asChild>
@@ -52,7 +55,10 @@ const CollectionCategorySection = ({ category }: Props) => {
                 key={collection.name}
                 item={collection}
                 onClick={() => {
-                  alert(`${collection.name} clicked`);
+                  openAddCollection({
+                    parentFolderId,
+                    collectionType: collection.type,
+                  });
                 }}
               />
             ))}

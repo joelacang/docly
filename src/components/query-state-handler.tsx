@@ -13,6 +13,7 @@ export function QueryStateHandler<T>({
   emptyDescription,
   errorTitle,
   errorMessage,
+  emptyContent,
   children,
 }: QueryStateHandlerProps<T>) {
   if (isLoading) {
@@ -29,29 +30,31 @@ export function QueryStateHandler<T>({
 
   if (isError) {
     return (
-      <Centered className="py-8">
-        <AlertMessage
-          title={errorTitle ?? "Error Performing Action"}
-          description={errorMessage ?? "An unknown error occurred."}
-          mode={Mode.ERROR}
-        />
-      </Centered>
+      <AlertMessage
+        title={errorTitle ?? "Error Performing Action"}
+        description={errorMessage ?? "An unknown error occurred."}
+        mode={Mode.ERROR}
+      />
     );
   }
 
-  if (!data || (Array.isArray(data) && !data.length)) {
+  if (
+    !data ||
+    (Array.isArray(data) && !data.length && (emptyTitle || emptyDescription))
+  ) {
     return (
-      <Centered className="py-8">
+      <div className="px-4">
         <AlertMessage
           title={emptyTitle ?? "No Result Found."}
           description={
             emptyDescription ??
             "Sorry, there are no results with your request. Try again later."
           }
-          mode={Mode.ERROR}
           icon={SearchXIcon}
-        />
-      </Centered>
+        >
+          {emptyContent}
+        </AlertMessage>
+      </div>
     );
   }
 

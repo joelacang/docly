@@ -13,4 +13,5 @@ export type FolderPreview = {
   workspaceId: string;
   parentFolderId?: string | null;
   depth: number;
+  items: number;
 };

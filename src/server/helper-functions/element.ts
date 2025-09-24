@@ -13,7 +13,6 @@ export async function createElement({
 }): Promise<Element> {
   const { elementType, ...otherFields } = data;
 
-  console.log({ loggedUserId, slug: generateSlug(data.name) });
   const element = await transaction.element.create({
     data: {
       ...otherFields,

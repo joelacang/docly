@@ -40,18 +40,44 @@ export type WorkspaceMembershipSelected = Prisma.WorkspaceMembershipGetPayload<{
   select: typeof workspaceMembershipPreviewSelection;
 }>;
 
-export function convertToWorkspaceMembership(
-  data: WorkspaceMembershipSelected,
-): WorkspaceMembership {
-  const { workspace, ...others } = data;
+export const FolderPreviewPrismaSelection = {
+  id: true,
+  parentFolderId: true,
+  workspaceId: true,
+  depth: true,
+  _count: {
+    select: {
+      childFolders: true,
+      collections: true,
+    },
+  },
+  element: {
+    select: ElementPreviewPrismaSelection,
+  },
+};
 
-  const result = {
-    workspace,
-    membership: others,
-  };
+export const folderPreviewSelection = Prisma.validator()(
+  FolderPreviewPrismaSelection,
+);
 
-  return {
-    ...result,
-    access: getWorkspaceAccess(result),
-  };
-}
+export type FolderPreviewSelected = Prisma.FolderGetPayload<{
+  select: typeof folderPreviewSelection;
+}>;
+
+export const CollectionPreviewPrismaSelection = {
+  id: true,
+  folderId: true,
+  workspaceId: true,
+  type: true,
+  element: {
+    select: ElementPreviewPrismaSelection,
+  },
+};
+
+export const collectionPreviewSelection = Prisma.validator()(
+  CollectionPreviewPrismaSelection,
+);
+
+export type CollectionPreviewSelected = Prisma.CollectionGetPayload<{
+  select: typeof collectionPreviewSelection;
+}>;

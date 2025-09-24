@@ -8,6 +8,7 @@ import {
   type CollectionType,
   Color,
   type ElementType,
+  EntryType as Entry,
   type EntryType,
 } from "@prisma/client";
 import {
@@ -33,6 +34,7 @@ import {
   File,
   HelpCircle,
   Bell,
+  NotebookIcon,
 } from "lucide-react";
 
 // Collection Categories
@@ -119,10 +121,11 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     name: "notebook",
     label: "Notebook",
     description: "Collection of pages and notes for documentation",
-    icon: BookOpen,
+    icon: NotebookIcon,
     color: Color.BLUE,
     type: "Notebook",
     category: COLLECTION_CATEGORIES.KNOWLEDGE,
+    entry: "Note",
   },
   TaskGroup: {
     name: "taskgroup",
@@ -132,6 +135,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.GREEN,
     type: "TaskGroup",
     category: COLLECTION_CATEGORIES.PRODUCTIVITY,
+    entry: "Task",
   },
   IssueTracker: {
     name: "issuetracker",
@@ -141,6 +145,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.RED,
     type: "IssueTracker",
     category: COLLECTION_CATEGORIES.PRODUCTIVITY,
+    entry: "Issue",
   },
   Discussion: {
     name: "discussion",
@@ -150,6 +155,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.PURPLE,
     type: "Discussion",
     category: COLLECTION_CATEGORIES.COMMUNICATION,
+    entry: "Thread",
   },
   Chat: {
     name: "chat",
@@ -159,6 +165,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.TEAL,
     type: "Chat",
     category: COLLECTION_CATEGORIES.COMMUNICATION,
+    entry: "Channel",
   },
   Calendar: {
     name: "calendar",
@@ -168,6 +175,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.ORANGE,
     type: "Calendar",
     category: COLLECTION_CATEGORIES.PRODUCTIVITY,
+    entry: "Event",
   },
   Storage: {
     name: "storage",
@@ -177,6 +185,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.GRAY,
     type: "Storage",
     category: COLLECTION_CATEGORIES.STORAGE,
+    entry: "File",
   },
   FAQ: {
     name: "faq",
@@ -186,6 +195,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.CYAN,
     type: "FAQ",
     category: COLLECTION_CATEGORIES.KNOWLEDGE,
+    entry: "Question",
   },
   Announcement: {
     name: "announcement",
@@ -195,6 +205,7 @@ export const COLLECTION_DISPLAYS: Record<CollectionType, CollectionDisplay> = {
     color: Color.ORANGE,
     type: "Announcement",
     category: COLLECTION_CATEGORIES.GENERAL,
+    entry: "Alert",
   },
 };
 

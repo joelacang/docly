@@ -9,7 +9,7 @@ type FolderFormDialogState = {
     parentFolderId,
     depth,
   }: {
-    parentFolderId?: string;
+    parentFolderId?: string | null;
     depth?: number;
   }) => void;
   onClose: () => void;

@@ -4,10 +4,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import SidebarMenuButton from "@/features/sidebar/components/sibebar-menu-button";
-
-import type { MenuItem } from "@/types";
-import { Colors } from "@/utils/colors";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -18,34 +14,37 @@ import { useState } from "react";
 interface Props {
   name: string;
   icon?: LucideIcon;
-  items: MenuItem[];
-  empty?: React.ReactNode;
+  children?: React.ReactNode;
+  settings?: React.ReactNode;
+  showSettings?: boolean;
 }
 
-const SidebarSection = ({ name, icon: Icon, items, empty }: Props) => {
+const SidebarSection = ({
+  name,
+  icon: Icon,
+  children,
+  settings,
+  showSettings,
+}: Props) => {
   const [open, setOpen] = useState(true);
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild>
-        <Button className="" variant="ghost">
-          <div className="flex flex-row items-center gap-2">
-            {Icon && <Icon className="h-4 w-4" />}
-            <p className="text-sm font-semibold">{name}</p>
-          </div>
-          {open ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        {items.length ? (
-          <div className="pl-4">
-            {items.map((item) => (
-              <SidebarMenuButton key={item.id} item={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="p-2">{empty}</div>
-        )}
+      <div className="flex flex-row items-center justify-between gap-4">
+        <CollapsibleTrigger asChild>
+          <Button className="" variant="ghost">
+            <div className="flex flex-row items-center gap-2">
+              {Icon && <Icon className="h-4 w-4" />}
+              <p className="text-sm font-semibold">{name}</p>
+            </div>
+            {open ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          </Button>
+        </CollapsibleTrigger>
+        {showSettings && <>{settings}</>}
+      </div>
+
+      <CollapsibleContent className="pr-2 pb-4 pl-4">
+        {children}
       </CollapsibleContent>
     </Collapsible>
   );

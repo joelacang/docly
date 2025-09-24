@@ -18,6 +18,7 @@ interface Props {
 const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
   const { mutate: createFolder, isPending } = api.folder.create.useMutation();
   const { onPending, onCompleted, onClose } = useFolderFormDialog();
+  const apiUtils = api.useUtils();
   const fields: FormFieldComponent<typeof createFolderSchema>[] = [
     {
       component: "input",
@@ -58,6 +59,19 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
 
     createFolder(values, {
       onSuccess: (response) => {
+        apiUtils.folder.getFolderItems.setData(
+          {
+            parentFolderId: response.parentFolderId ?? null,
+            workspaceId: response.workspaceId,
+          },
+          (prev) => {
+            if (!prev) return [];
+
+            const updatedFolders = [...prev, response];
+
+            return updatedFolders;
+          },
+        );
         toast.custom(() => (
           <ToastMessage
             title="Folder Created"
@@ -82,6 +96,10 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
       },
     });
   };
+
+  // const onSubmit = (values: z.infer<typeof createFolderSchema>) => {
+  //   console.log(values);
+  // };
 
   return (
     <ReusableForm

@@ -188,6 +188,7 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
           );
         })}
         <div>{children}</div>
+        <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre>
         <div className="flex w-full items-center justify-end pt-4">
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2Icon className="mr-2 animate-spin" />}

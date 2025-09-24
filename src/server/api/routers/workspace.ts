@@ -12,11 +12,13 @@ import {
   WorkspaceMembershipStatus,
   WorkspaceType,
 } from "@prisma/client";
-import { createWorkspace } from "@/server/helper-functions/workspace";
+import {
+  convertToWorkspaceMembership,
+  createWorkspace,
+} from "@/server/helper-functions/workspace";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 import {
-  convertToWorkspaceMembership,
   ElementPreviewPrismaSelection,
   WorkspaceMembershipPrismaSelection,
 } from "@/server/helper-functions/prisma";

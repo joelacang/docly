@@ -198,8 +198,9 @@ model Element {
 
   createdBy User? @relation("ElementCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
-  workspace Workspace?
-  folder    Folder?
+  workspace  Workspace?
+  folder     Folder?
+  collection Collection?
 
   inboxItems InboxItem[]
   owners     ElementOwner[]
@@ -241,6 +242,7 @@ model Workspace {
   invitations           WorkspaceMembershipInvitation[]
   folders               Folder[]
   currentUserWorkspaces UserPreference[]
+  collections           Collection[]
 
   @@index([type])
 }
@@ -322,11 +324,30 @@ model Folder {
   parentFolder Folder?   @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
   element      Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
-  childFolders Folder[] @relation("ParentFolder")
+  childFolders Folder[]     @relation("ParentFolder")
+  collections  Collection[]
 
   @@index([workspaceId])
   @@index([parentFolderId])
   @@index([parentFolderId, workspaceId])
+}
+
+model Collection {
+  id          String         @id @default(cuid())
+  workspaceId String
+  elementId   String         @unique
+  folderId    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  type        CollectionType
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  @@index([folderId])
+  @@index([workspaceId])
+  @@index([workspaceId, folderId])
 }
 
 enum InboxItemType {

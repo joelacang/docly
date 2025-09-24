@@ -38,7 +38,7 @@ export type ElementPreview = {
 export type Display = {
   name: string;
   label: string;
-  description?: string;
+  description: string;
   icon: LucideIcon;
   color: Color;
 };
@@ -57,6 +57,7 @@ export type ElementDisplay = Display & {
 export type CollectionDisplay = Display & {
   type: CollectionType;
   category?: CollectionCategory;
+  entry: EntryType;
 };
 
 export type EntryDisplay = Display & {
