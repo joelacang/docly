@@ -51,11 +51,15 @@ const ToastMessage = ({
           </p>
         </div>
       </div>
-      <div className="line-clamp-1 flex w-full items-center justify-center">
-        {children}
-      </div>
+      {children && (
+        <div className="line-clamp-1 flex w-full items-center justify-center">
+          {children}
+        </div>
+      )}
 
-      <div className="flex w-full items-center justify-end">{footer}</div>
+      {footer && (
+        <div className="flex w-full items-center justify-end">{footer}</div>
+      )}
     </div>
   );
 };

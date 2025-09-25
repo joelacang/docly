@@ -45,6 +45,8 @@ model User {
   elementsOwned            ElementOwner[]                  @relation("ElementOwner")
   elementOwnershipsCreated ElementOwner[]                  @relation("ElementOwnershipCreator")
   preference               UserPreference?
+  favorites                Favorite[]
+  teamMemberships          TeamMembership[]
 
   @@unique([email])
   @@index([email])
@@ -204,6 +206,7 @@ model Element {
 
   inboxItems InboxItem[]
   owners     ElementOwner[]
+  favorites  Favorite[]
 
   @@index([name])
   @@index([type, slug])
@@ -243,11 +246,13 @@ model Workspace {
   folders               Folder[]
   currentUserWorkspaces UserPreference[]
   collections           Collection[]
+  favorites             Favorite[]
+  teams                 Team[]
 
   @@index([type])
 }
 
-enum WorkspaceMembershipRole {
+enum MembershipRole {
   Owner
   Admin
   Editor
@@ -255,7 +260,7 @@ enum WorkspaceMembershipRole {
   Guest
 }
 
-enum WorkspaceMembershipStatus {
+enum MembershipStatus {
   Pending
   Active
   Inactive
@@ -263,13 +268,13 @@ enum WorkspaceMembershipStatus {
 }
 
 model WorkspaceMembership {
-  id          String                    @id @default(cuid())
+  id          String           @id @default(cuid())
   workspaceId String
   memberId    String
-  role        WorkspaceMembershipRole   @default(Member)
-  status      WorkspaceMembershipStatus @default(Pending)
-  createdAt   DateTime                  @default(now())
-  updatedAt   DateTime                  @updatedAt
+  role        MembershipRole   @default(Member)
+  status      MembershipStatus @default(Pending)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   member    User      @relation(fields: [memberId], references: [id], onDelete: Cascade)
@@ -281,6 +286,33 @@ model WorkspaceMembership {
   @@index([memberId, status])
 }
 
+model Team {
+  id          String   @id @default(cuid())
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  members TeamMembership[]
+
+  @@index([workspaceId])
+}
+
+model TeamMembership {
+  id       String           @id @default(cuid())
+  teamId   String
+  memberId String
+  role     MembershipRole
+  status   MembershipStatus
+
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  member User @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, memberId])
+  @@index([teamId, status])
+}
+
 enum InvitationStatus {
   Pending
   Accepted
@@ -289,18 +321,18 @@ enum InvitationStatus {
 }
 
 model WorkspaceMembershipInvitation {
-  id            String                  @id @default(cuid())
+  id            String           @id @default(cuid())
   workspaceId   String
   invitedUserId String? // nullable for email-only invites
   email         String? // used if invitedUser is null
   invitedById   String
-  role          WorkspaceMembershipRole
-  status        InvitationStatus        @default(Pending)
-  token         String                  @unique
+  role          MembershipRole
+  status        InvitationStatus @default(Pending)
+  token         String           @unique
   expiresAt     DateTime
   acceptedAt    DateTime?
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   invitedBy   User      @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
@@ -348,6 +380,22 @@ model Collection {
   @@index([folderId])
   @@index([workspaceId])
   @@index([workspaceId, folderId])
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  elementId   String
+  workspaceId String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, elementId, workspaceId])
+  @@index([userId, workspaceId])
+  @@index([elementId])
 }
 
 enum InboxItemType {

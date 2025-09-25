@@ -1,15 +1,9 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import {
-  WorkspaceMembershipRole,
-  WorkspaceMembershipStatus,
-} from "@prisma/client";
 import type { WorkspaceMembership } from "@/types/workspace";
-import {
-  ElementPreviewPrismaSelection,
-  WorkspaceMembershipPrismaSelection,
-} from "@/server/helper-functions/prisma";
+import { WorkspaceMembershipPrismaSelection } from "@/server/helper-functions/prisma";
+import { MembershipRole, MembershipStatus } from "@prisma/client";
 
 export const membershipRouter = createTRPCRouter({
   join: protectedProcedure
@@ -48,8 +42,8 @@ export const membershipRouter = createTRPCRouter({
             data: {
               workspaceId: input.workspaceId,
               memberId: ctx.session.user.id,
-              role: WorkspaceMembershipRole.Member,
-              status: WorkspaceMembershipStatus.Active,
+              role: MembershipRole.Member,
+              status: MembershipStatus.Active,
             },
             select: WorkspaceMembershipPrismaSelection,
           });

@@ -8,7 +8,7 @@ const NoWorkspaceMessage = () => {
   const { onOpen: openCreateWorkspace } = useCreateWorkspaceDialog();
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center">
+    <div className="flex min-h-[calc(100vh-44px)] w-full items-center justify-center">
       <InfoMessage
         imageUrl="/images/not-found.png"
         message="You don't have any workspaces. Start creating one or join another."

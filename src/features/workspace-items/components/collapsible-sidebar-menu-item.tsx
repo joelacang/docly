@@ -1,11 +1,4 @@
-import { Button } from "@/components/ui/button";
-import SidebarMenuButton from "@/features/sidebar/components/sidebar-menu-button";
-import SidebarFolderDropdownMenu from "@/features/sidebar/components/sidebar-folder-dropdown-menu";
-import { cn } from "@/lib/utils";
-import type { MenuItem } from "@/types";
 import type { FolderPreview } from "@/types/folder";
-import { ELEMENT_DISPLAYS } from "@/utils/elements";
-import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import {
   Collapsible,
@@ -26,14 +19,17 @@ const CollapsibleSidebarMenuItem = ({ item, isEditor }: Props) => {
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="w-full" asChild>
-        <FolderSidebarMenuItem
-          item={item}
-          isEditor={isEditor}
-          open={open}
-          unlocked
-        />
+        <div>
+          <FolderSidebarMenuItem item={item} open={open} unlocked />
+        </div>
       </CollapsibleTrigger>
-      <CollapsibleContent className="w-full">Content HERE</CollapsibleContent>
+      <CollapsibleContent className="w-full pl-2">
+        <WorkspaceItemsList
+          parentFolderId={item.id}
+          workspaceId={item.workspaceId}
+          isEditor={isEditor}
+        />
+      </CollapsibleContent>
     </Collapsible>
   );
 };

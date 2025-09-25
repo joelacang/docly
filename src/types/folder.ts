@@ -1,5 +1,6 @@
 import z from "zod";
 import { createElementBaseSchema, type ElementPreview } from "./element";
+import type { CollectionPreview } from "./collection";
 
 export const createFolderSchema = createElementBaseSchema.extend({
   parentFolderId: z.cuid().nullable().optional(),
@@ -14,4 +15,10 @@ export type FolderPreview = {
   parentFolderId?: string | null;
   depth: number;
   items: number;
+  favoriteId?: string | null;
+};
+
+export type FolderItemsList = {
+  folders: FolderPreview[];
+  collections: CollectionPreview[];
 };

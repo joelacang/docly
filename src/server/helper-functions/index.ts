@@ -1,15 +1,22 @@
 import type { TRPC_ERROR_CODE_KEY, TRPCError } from "@trpc/server";
 
-export function generateSlug(text: string): string {
+export function generateSlug(text: string, maxLength = 50): string {
+  const uniqueId = generateId(6).toLowerCase(); // customize length if needed
+  const separator = "-";
+  const reservedLength = uniqueId.length + separator.length;
+
   const cleanedText = text
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, "-") // replace spaces with -
+    .replace(/\s+/g, "-") // replace spaces with hyphens
     .replace(/[^a-z0-9\-]/g, "") // remove non-alphanumeric except hyphens
     .replace(/\-+/g, "-"); // collapse multiple hyphens
 
-  const uniqueId = generateId(6); // you can customize the length
-  return `${cleanedText}-${uniqueId.toLowerCase()}`;
+  // Truncate the text part so the final slug doesn't exceed maxLength
+  const maxTextLength = Math.max(0, maxLength - reservedLength);
+  const truncatedText = cleanedText.slice(0, maxTextLength).replace(/-+$/, ""); // avoid trailing hyphen
+
+  return `${truncatedText}${separator}${uniqueId}`;
 }
 
 export function generateId(length: number): string {

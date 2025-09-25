@@ -10,6 +10,8 @@ import { Mode, type MenuItem } from "@/types";
 import { Color } from "@prisma/client";
 import SidebarSection from "./sidebar-section";
 import AlertMessage from "@/components/messages/alert-message";
+import FavoriteList from "@/features/favorites/components/favorite-list";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 const items: MenuItem[] = [
   {
@@ -42,20 +44,13 @@ const items: MenuItem[] = [
   },
 ];
 const FavoritesSection = () => {
+  const { currentWorkspace } = useMyWorkspaces();
   return (
-    <SidebarSection
-      name="FAVORITES"
-      icon={StarIcon}
-      items={[]}
-      empty={
-        <AlertMessage
-          title="No Favorites Found."
-          icon={StarOffIcon}
-          mode={Mode.DEFAULT}
-          dashed
-        />
-      }
-    />
+    <SidebarSection name="FAVORITES" icon={StarIcon}>
+      {currentWorkspace && (
+        <FavoriteList workspaceId={currentWorkspace.workspace.id} />
+      )}
+    </SidebarSection>
   );
 };
 

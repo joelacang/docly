@@ -59,19 +59,6 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
 
     createFolder(values, {
       onSuccess: (response) => {
-        apiUtils.folder.getFolderItems.setData(
-          {
-            parentFolderId: response.parentFolderId ?? null,
-            workspaceId: response.workspaceId,
-          },
-          (prev) => {
-            if (!prev) return [];
-
-            const updatedFolders = [...prev, response];
-
-            return updatedFolders;
-          },
-        );
         toast.custom(() => (
           <ToastMessage
             title="Folder Created"
@@ -79,6 +66,14 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
             mode={Mode.SUCCESS}
           />
         ));
+
+        apiUtils.folder.getFolderItems
+          .invalidate()
+          .then(() => console.log(`getFolderItems tag invalidated.`))
+          .catch((error) =>
+            console.error(`error invalidating getFolderItems tag`, error),
+          );
+
         onClose();
       },
       onError: (error) => {
@@ -96,10 +91,6 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
       },
     });
   };
-
-  // const onSubmit = (values: z.infer<typeof createFolderSchema>) => {
-  //   console.log(values);
-  // };
 
   return (
     <ReusableForm

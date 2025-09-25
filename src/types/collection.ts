@@ -14,4 +14,5 @@ export type CollectionPreview = {
   workspaceId: string;
   parentFolderId?: string | null;
   element: ElementPreview;
+  favoriteId?: string | null;
 };

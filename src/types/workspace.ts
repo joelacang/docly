@@ -1,7 +1,7 @@
 import {
+  type MembershipRole,
+  type MembershipStatus,
   WorkspaceType,
-  type WorkspaceMembershipRole,
-  type WorkspaceMembershipStatus,
 } from "@prisma/client";
 import { createElementBaseSchema, type ElementPreview } from "./element";
 import z from "zod";
@@ -13,8 +13,8 @@ export type WorkspacePreview = {
 };
 export type MembershipPreview = {
   id: string;
-  role: WorkspaceMembershipRole;
-  status: WorkspaceMembershipStatus;
+  role: MembershipRole;
+  status: MembershipStatus;
 };
 
 export type WorkspaceMembership = {

@@ -1,9 +1,11 @@
+import type { CollectionPreview } from "@/types/collection";
 import type {
   CollectionCategory,
   CollectionDisplay,
   ElementDisplay,
   EntryDisplay,
 } from "@/types/element";
+import type { FolderPreview } from "@/types/folder";
 import {
   type CollectionType,
   Color,
@@ -302,3 +304,23 @@ export const ENTRY_DISPLAYS: Record<EntryType, EntryDisplay> = {
     collection: "Announcement",
   },
 };
+
+export function isFolderExisted({
+  folderId,
+  folderArray,
+}: {
+  folderId: string;
+  folderArray: FolderPreview[];
+}): boolean {
+  return folderArray.some((f) => f.id === folderId);
+}
+
+export function isCollectionExisted({
+  collectionId,
+  collectionArray,
+}: {
+  collectionId: string;
+  collectionArray: CollectionPreview[];
+}): boolean {
+  return collectionArray.some((c) => c.id === collectionId);
+}

@@ -13,6 +13,7 @@ interface Props {
   color?: ColorPalette;
 }
 const MyDropdownMenuItem = ({ item, color }: Props) => {
+  if (item.hidden) return null;
   return (
     <div>
       <DropdownMenuItem

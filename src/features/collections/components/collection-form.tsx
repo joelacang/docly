@@ -22,7 +22,8 @@ const CollectionForm = ({
 }: Props) => {
   const { mutate: createCollection, isPending } =
     api.collection.create.useMutation();
-  const { onPending, onCompleted } = useCollectionFormDialog();
+  const apiUtils = api.useUtils();
+  const { onPending, onCompleted, onClose } = useCollectionFormDialog();
   const fields: FormFieldComponent<typeof createCollectionSchema>[] = [
     {
       component: "input",
@@ -61,14 +62,22 @@ const CollectionForm = ({
 
     createCollection(values, {
       onSuccess: (response) => {
-        // toast.custom(() => (
-        //   <ToastMessage
-        //     title={`${response.type} Created.`}
-        //     message={`The ${response.type} ${response.element.name} has been created successfully`}
-        //     mode={Mode.SUCCESS}
-        //   />
-        // ));
-        console.log(response);
+        toast.custom(() => (
+          <ToastMessage
+            title={`${response.type} Created.`}
+            message={`The ${response.type} ${response.element.name} has been created successfully`}
+            mode={Mode.SUCCESS}
+          />
+        ));
+
+        apiUtils.folder.getFolderItems
+          .invalidate()
+          .then(() => console.log(`getFolderItems tag invalidated.`))
+          .catch((error) =>
+            console.error(`error invalidating getFolderItems tag`, error),
+          );
+
+        onClose();
       },
       onError: (error) => {
         toast.custom(() => (

@@ -5,20 +5,27 @@ import type { CollectionPreview } from "@/types/collection";
 import { COLLECTION_DISPLAYS } from "@/utils/elements";
 import { useState } from "react";
 import SidebarCollectionDropdownMenu from "@/features/sidebar/components/sidebar-collection-dropdown-menu";
+import { useRouter } from "next/navigation";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   item: CollectionPreview;
-  isEditor?: boolean;
 }
 
-const CollectionSidebarMenuItem = ({ item, isEditor }: Props) => {
+const CollectionSidebarMenuItem = ({ item }: Props) => {
   const collectionDisplay = COLLECTION_DISPLAYS[item.type];
+  const router = useRouter();
+  const { currentWorkspace } = useMyWorkspaces();
   const menuItem: MenuItem = {
     id: item.id,
     label: `${item.element.name}`,
     icon: collectionDisplay.icon,
     color: item.element.color,
-    showDropdownButton: isEditor,
+    action: () => {
+      router.push(
+        `/workspace/${currentWorkspace?.workspace.element.slug}/${item.type}/${item.element.slug}`,
+      );
+    },
   };
   const [isHighlighted, setIsHighlighted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -31,7 +38,7 @@ const CollectionSidebarMenuItem = ({ item, isEditor }: Props) => {
   };
   return (
     <div
-      className="flex flex-row items-center justify-between gap-2"
+      className="flex flex-row items-center justify-between gap-1"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

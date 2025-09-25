@@ -1,9 +1,9 @@
 import { Access, type WorkspaceMembership } from "@/types/workspace";
 import {
-  WorkspaceMembershipRole,
-  WorkspaceMembershipStatus,
   type WorkspaceType,
   type Prisma,
+  MembershipRole,
+  MembershipStatus,
 } from "@prisma/client";
 import { db } from "../db";
 import { getWorkspaceAccess } from "@/utils";
@@ -42,8 +42,8 @@ export async function createWorkspace({
     data: {
       workspaceId: workspace.id,
       memberId: loggedUserId,
-      role: WorkspaceMembershipRole.Owner,
-      status: WorkspaceMembershipStatus.Active,
+      role: MembershipRole.Owner,
+      status: MembershipStatus.Active,
     },
     select: {
       id: true,

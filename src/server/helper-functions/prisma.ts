@@ -1,3 +1,4 @@
+import CollectionSidebarMenuItem from "@/features/workspace-items/components/collection-sidebar-menu-item";
 import type { WorkspaceMembership } from "@/types/workspace";
 import { getWorkspaceAccess } from "@/utils";
 import { Prisma } from "@prisma/client";
@@ -40,7 +41,7 @@ export type WorkspaceMembershipSelected = Prisma.WorkspaceMembershipGetPayload<{
   select: typeof workspaceMembershipPreviewSelection;
 }>;
 
-export const FolderPreviewPrismaSelection = {
+export const FolderPreviewBaseSelection = {
   id: true,
   parentFolderId: true,
   workspaceId: true,
@@ -51,6 +52,9 @@ export const FolderPreviewPrismaSelection = {
       collections: true,
     },
   },
+};
+export const FolderPreviewPrismaSelection = {
+  ...FolderPreviewBaseSelection,
   element: {
     select: ElementPreviewPrismaSelection,
   },
@@ -64,11 +68,15 @@ export type FolderPreviewSelected = Prisma.FolderGetPayload<{
   select: typeof folderPreviewSelection;
 }>;
 
-export const CollectionPreviewPrismaSelection = {
+export const CollectionPreviewBaseSelection = {
   id: true,
   folderId: true,
   workspaceId: true,
   type: true,
+};
+
+export const CollectionPreviewPrismaSelection = {
+  ...CollectionPreviewBaseSelection,
   element: {
     select: ElementPreviewPrismaSelection,
   },

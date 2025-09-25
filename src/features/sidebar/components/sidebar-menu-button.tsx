@@ -21,7 +21,6 @@ const SidebarMenuButton = ({
   const color = Colors[currentWorkspace?.workspace.element.color ?? "GREEN"];
   const iconColor = item.color && Colors[item.color];
 
-  console.log("OPEN:", open);
   return (
     <div
       className="group flex w-full items-center justify-between gap-2"
@@ -45,10 +44,10 @@ const SidebarMenuButton = ({
           } as React.CSSProperties
         }
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-start gap-2">
           {item.icon && (
             <item.icon
-              className="size-5 group-hover:text-white"
+              className="size-5 shrink-0 group-hover:text-white"
               strokeWidth={1.5}
               color={iconColor?.primary}
               fill={iconColor?.lightest ?? "none"}

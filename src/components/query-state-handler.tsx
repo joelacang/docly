@@ -19,7 +19,7 @@ export function QueryStateHandler<T>({
   if (isLoading) {
     if (typeof loadingLabel === "string") {
       return (
-        <Centered className="py-8">
+        <Centered>
           <Loading label={loadingLabel} />
         </Centered>
       );

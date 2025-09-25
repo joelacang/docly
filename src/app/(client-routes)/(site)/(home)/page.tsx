@@ -16,9 +16,6 @@ const SiteHomePage = () => {
         title={`Welcome, ${loggedUser.name}!`}
         subtitle="Ready to continue your journey? Explore your dashboard, check recent activity, and discover what's new today."
       />
-      <Centered>
-        <WorkspaceLoader />
-      </Centered>
     </div>
   );
 };

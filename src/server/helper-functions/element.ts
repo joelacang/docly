@@ -16,7 +16,7 @@ export async function createElement({
   const element = await transaction.element.create({
     data: {
       ...otherFields,
-      slug: generateSlug(data.name),
+      slug: generateSlug(data.name, 24),
       createdById: loggedUserId,
       type: elementType,
     },

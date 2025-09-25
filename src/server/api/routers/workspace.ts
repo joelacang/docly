@@ -8,8 +8,8 @@ import {
 import {
   ElementStatus,
   ElementType,
-  WorkspaceMembershipRole,
-  WorkspaceMembershipStatus,
+  MembershipRole,
+  MembershipStatus,
   WorkspaceType,
 } from "@prisma/client";
 import {
@@ -62,9 +62,9 @@ export const workspaceRouter = createTRPCRouter({
   getMyWorkspaces: protectedProcedure.query(async ({ ctx }) => {
     const data = await ctx.db.workspaceMembership.findMany({
       where: {
-        status: WorkspaceMembershipStatus.Active,
+        status: MembershipStatus.Active,
         role: {
-          notIn: [WorkspaceMembershipRole.Guest],
+          notIn: [MembershipRole.Guest],
         },
         memberId: ctx.session.user.id,
         workspace: {

@@ -6,27 +6,20 @@ import type { MenuItem } from "@/types";
 import type { FolderPreview } from "@/types/folder";
 import { ELEMENT_DISPLAYS } from "@/utils/elements";
 import { useState } from "react";
+import { FolderIcon, FolderOpenIcon } from "lucide-react";
 
 interface Props {
   item: FolderPreview;
-  isEditor?: boolean;
   open?: boolean;
   unlocked?: boolean;
 }
 
-const FolderSidebarMenuItem = ({
-  item,
-  isEditor,
-  open,
-  unlocked = false,
-}: Props) => {
-  const display = ELEMENT_DISPLAYS[item.element.type];
+const FolderSidebarMenuItem = ({ item, open, unlocked = false }: Props) => {
   const menuItem: MenuItem = {
     id: item.id,
-    label: `${item.element.name} (${item.items.toString()})`,
-    icon: display.icon,
+    label: `${item.element.name}`,
+    icon: open ? FolderOpenIcon : FolderIcon,
     color: item.element.color,
-    showDropdownButton: isEditor,
   };
   const [isHighlighted, setIsHighlighted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,7 +32,7 @@ const FolderSidebarMenuItem = ({
   };
   return (
     <div
-      className="flex flex-row items-center justify-between gap-2"
+      className="flex flex-row items-center justify-between gap-1"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

@@ -43,7 +43,7 @@ const SidebarSection = ({
         {showSettings && <>{settings}</>}
       </div>
 
-      <CollapsibleContent className="pr-2 pb-4 pl-4">
+      <CollapsibleContent className="px-2 py-2 pb-4">
         {children}
       </CollapsibleContent>
     </Collapsible>
