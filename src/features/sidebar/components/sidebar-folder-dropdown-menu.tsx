@@ -224,7 +224,7 @@ const SidebarFolderDropdownMenu = ({ folder, ...props }: Props) => {
         {items.map((item) => {
           if (item.hidden) return null;
           return (
-            <MyDropdownMenuItem key={item.id} item={item} color={wsColor} />
+            <MyDropdownMenuItem key={item.id} item={item} color="workspace" />
           );
         })}
       </DropdownMenuContent>

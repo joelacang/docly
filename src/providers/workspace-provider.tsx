@@ -1,10 +1,12 @@
 "use client";
 
+import LoadingToastMessage from "@/components/custom/loading-toast-message";
+import ToastMessage from "@/components/custom/toast-message";
 import Centered from "@/components/layout/centered";
 import ErrorMessage from "@/components/messages/error-message";
 import LoadingMessage from "@/components/messages/loading-message";
-import NoWorkspaceMessage from "@/features/workspaces/components/messages/no-workspace-message";
 import { api } from "@/trpc/react";
+import { Mode } from "@/types";
 import type { WorkspaceMembership } from "@/types/workspace";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -13,8 +15,10 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import toast from "react-hot-toast";
 
 type WorkspaceContext = {
   myWorkspaces: WorkspaceMembership[];
@@ -64,12 +68,40 @@ export const WorkspaceProvider = ({ children }: Props) => {
   useEffect(() => {
     if (isLoading || !data?.myWorkspaces) return;
 
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     if (workspaceSlug) {
       const foundWorkspace = data.myWorkspaces.find(
         (w) => w.workspace.element.slug === workspaceSlug,
       );
-      setCurrentWorkspace(foundWorkspace ?? null);
-      return;
+
+      if (
+        foundWorkspace &&
+        foundWorkspace.workspace.element.slug !==
+          currentWorkspace?.workspace.element.slug
+      ) {
+        const switchToast = toast.custom(
+          () => (
+            <LoadingToastMessage
+              message={`Switching Workspace to ${foundWorkspace.workspace.element.name}...`}
+            />
+          ),
+          { duration: 300 },
+        );
+
+        timeoutId = setTimeout(() => {
+          setCurrentWorkspace(foundWorkspace ?? null);
+          toast.custom(() => (
+            <ToastMessage
+              title="Workspace Switched."
+              message={`Workspace is now switched to ${foundWorkspace.workspace.element.name}`}
+              mode={Mode.SUCCESS}
+            />
+          ));
+        }, 800);
+      }
+
+      return () => clearTimeout(timeoutId);
     }
 
     const targetSlug =
@@ -80,7 +112,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
     } else {
       router.push("/no-workspace"); // ✅ Fixed: removed "-found"
     }
-  }, [data, workspaceSlug, isLoading, router]);
+  }, [data, workspaceSlug, isLoading, router, currentWorkspace, toast]);
 
   if (isLoading) {
     return <LoadingMessage message="Loading Your Workspaces..." />;

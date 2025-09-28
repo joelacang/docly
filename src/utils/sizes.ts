@@ -4,7 +4,7 @@ import type { Color } from "@prisma/client";
 export const getAvatarSize = (size: SIZE) => {
   switch (size) {
     case SIZE.MICRO:
-      return "size-6";
+      return "size-5";
     case SIZE.SMALL:
       return "size-8";
     case SIZE.MEDIUM:
@@ -19,7 +19,7 @@ export const getAvatarSize = (size: SIZE) => {
 export const getAvatarText = (size: SIZE) => {
   switch (size) {
     case SIZE.MICRO:
-      return "text-sm";
+      return "text-xs";
     case SIZE.SMALL:
       return "text-lg";
     case SIZE.MEDIUM:

@@ -20,7 +20,7 @@ const WorkspaceHomePage = () => {
   if (found) {
     return (
       <div>
-        <pre>{JSON.stringify(found, null, 2)}</pre>
+        <pre>{JSON.stringify(currentWorkspace, null, 2)}</pre>
       </div>
     );
   }

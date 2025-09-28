@@ -19,7 +19,7 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="via-green-3 00 flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-sky-50 to-blue-500">
+    <div className="via-green-3 00 flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-sky-50 to-blue-500 dark:from-[oklch(0.18_0_260)] dark:via-[oklch(0.21_0.02_240)] dark:to-[oklch(0.25_0.01_220)]">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-primary text-center text-4xl">

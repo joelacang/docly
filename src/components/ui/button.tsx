@@ -25,6 +25,8 @@ const buttonVariants = cva(
         error:
           "bg-gradient-to-br from-rose-400 to-red-600 text-white hover:from-rose-500 hover:to-red-700 active:from-rose-600 active:to-red-800 dark:hover:from-rose-300 dark:hover:to-red-500 dark:active:from-rose-400 dark:active:to-red-600",
         blue: "bg-gradient-to-br from-sky-400 dark:from-sky-600 to-blue-600 dark:to-blue-800 text-white active:scale-95 hover:from-sky-500 hover:to-blue-700 active:from-sky-600 active:to-blue-800 dark:hover:from-sky-700 dark:hover:to-blue-900 dark:active:from-sky-400 dark:active:to-blue-600 ",
+        purple:
+          "bg-gradient-to-br from-indigo-400 dark:from-indigo-600 to-purple-600 dark:to-purple-800 text-white active:scale-95 hover:from-indigo-500 hover:to-purple-700 active:from-indigo-600 active:to-purple-800 dark:hover:from-indigo-700 dark:hover:to-purple-900 dark:active:from-indigo-400 dark:active:to-purple-600 ",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

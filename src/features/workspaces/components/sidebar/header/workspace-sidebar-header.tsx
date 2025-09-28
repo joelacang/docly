@@ -7,9 +7,9 @@ import { ChevronDown } from "lucide-react";
 const WorkspaceSidebarHeader = () => {
   const { currentWorkspace } = useMyWorkspaces();
   return (
-    <div className="flex flex-row border-b p-4">
+    <div className="flex w-full flex-row border-b px-4 py-2">
       {currentWorkspace ? (
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex w-full items-center justify-between gap-4">
           <WorkspaceBadge
             workspace={currentWorkspace.workspace}
             membership={currentWorkspace.membership}

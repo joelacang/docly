@@ -6,12 +6,18 @@ interface Props {
 
 const PageHeader = ({ title, subtitle, children }: Props) => {
   return (
-    <div className="w-full border-gray-200">
-      <div className="px-6 py-8 sm:px-8 lg:px-12">
+    <div className="@container w-full">
+      <div className="px-4 pt-8 pb-12">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
-            {subtitle && <p className="text-gray-600">{subtitle}</p>}
+          <div className="w-full space-y-1">
+            <h1 className="text-foreground text-2xl font-bold @3xl:text-3xl">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-muted-foreground text-base @3xl:text-lg">
+                {subtitle}
+              </p>
+            )}
           </div>
 
           {children && <div className="ml-8 flex-shrink-0">{children}</div>}

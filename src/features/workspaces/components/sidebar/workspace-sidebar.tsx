@@ -7,15 +7,9 @@ import WorkspaceSidebarHeader from "./header/workspace-sidebar-header";
 import WorkspaceSidebarContent from "./workspace-sidebar-content";
 
 const WorkspaceSidebar = () => {
-  const { open } = useWorkspaceSidebar();
   const { currentWorkspace } = useMyWorkspaces();
   return (
-    <div
-      className={cn(
-        "bg-sidebar-bg min-h-full w-full",
-        open ? "block" : "hidden",
-      )}
-    >
+    <div className="bg-sidebar h-full w-full">
       {/* HEADER */}
       <WorkspaceSidebarHeader />
       {currentWorkspace && <WorkspaceSidebarContent />}

@@ -23,7 +23,7 @@ const SidebarMenuButton = ({
 
   return (
     <div
-      className="group flex w-full items-center justify-between gap-2"
+      className="group flex w-full cursor-pointer items-center justify-between gap-2"
       onClick={() => {
         if (item.action) {
           item.action();

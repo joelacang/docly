@@ -18,6 +18,8 @@ import { getWorkspaceMembership } from "../helper-functions/workspace";
 import { getWorkspaceAccess } from "@/utils";
 import { Access } from "@/types/workspace";
 import { unAuthorized } from "../helper-functions";
+import { Input } from "@/components/ui/input";
+import { MembershipStatus } from "@prisma/client";
 
 /**
  * 1. CONTEXT
@@ -190,3 +192,36 @@ export const workspaceEditProcedure = workspaceReadProcedure.use(
     });
   },
 );
+
+export const workspaceAdminProcedure = workspaceReadProcedure.use(
+  ({ ctx, next }) => {
+    const membership = ctx.session.workspaceMembership;
+
+    const access = getWorkspaceAccess(membership);
+
+    const isAdmin = access >= Access.ADMIN;
+
+    if (!isAdmin) throw new TRPCError(unAuthorized);
+
+    return next({
+      ctx,
+    });
+  },
+);
+
+export const teamReadProcedure = workspaceReadProcedure
+  .input(z.object({ teamId: z.cuid() }))
+  .use(async ({ ctx, input, next }) => {
+    const teamMembership = await ctx.db.teamMembership.findFirst({
+      where: {
+        teamId: input.teamId,
+        team: {
+          workspaceId: input.workspaceId,
+        },
+        memberId: ctx.session.user.id,
+        status: MembershipStatus.Active,
+      },
+    });
+    if (!teamMembership) throw new TRPCError(unAuthorized);
+    return next();
+  });

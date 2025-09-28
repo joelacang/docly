@@ -116,7 +116,7 @@ const UserMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {items.map((item) => (
-            <MyDropdownMenuItem item={item} key={item.id} />
+            <MyDropdownMenuItem item={item} key={item.id} color="workspace" />
           ))}
         </DropdownMenuGroup>
       </DropdownMenuContent>

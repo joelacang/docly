@@ -16,7 +16,7 @@ const SiteLayout = ({ children }: Props) => {
           <div className="sticky top-0 left-0 min-h-full">
             <Dock />
           </div>
-          {children}
+          <div className="w-full">{children}</div>
         </div>
       </WorkspaceProvider>
     </AuthProvider>

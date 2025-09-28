@@ -1,9 +1,19 @@
 import z from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  workspaceReadProcedure,
+} from "../trpc";
 import { TRPCError } from "@trpc/server";
-import type { WorkspaceMembership } from "@/types/workspace";
-import { WorkspaceMembershipPrismaSelection } from "@/server/helper-functions/prisma";
+import {
+  MemberPreviewSelection,
+  WorkspacePreviewSelection,
+} from "@/server/helper-functions/prisma";
 import { MembershipRole, MembershipStatus } from "@prisma/client";
+import { unknownError } from "@/server/helper-functions";
+import type { MemberPreview } from "@/types/member";
+import { UserPrismaSelection } from "@/server/helper-functions/user";
+import type { User } from "@/types/user";
 
 export const membershipRouter = createTRPCRouter({
   join: protectedProcedure
@@ -38,42 +48,67 @@ export const membershipRouter = createTRPCRouter({
             });
 
           //Auto join first. Require approval to do later.
-          const m = await tx.workspaceMembership.create({
+          const member = await tx.workspaceMembership.create({
             data: {
               workspaceId: input.workspaceId,
               memberId: ctx.session.user.id,
               role: MembershipRole.Member,
               status: MembershipStatus.Active,
+              joinDate: new Date(),
             },
-            select: WorkspaceMembershipPrismaSelection,
+            select: {
+              ...MemberPreviewSelection,
+              workspace: {
+                select: WorkspacePreviewSelection,
+              },
+            },
           });
 
-          const membership: WorkspaceMembership = {
-            workspace: {
-              id: m.workspace.id,
-              element: m.workspace.element,
-              type: m.workspace.type,
-            },
-            membership: {
-              id: m.id,
-              role: m.role,
-              status: m.status,
-            },
-          };
-
-          //Add Notification later.
-
-          return membership;
+          return member;
         });
 
         return results;
       } catch (error) {
         console.error(`Error joining workspace: `, error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Error joining workspace. An unknown error occurred.`,
-          cause: error,
-        });
+        throw new TRPCError(unknownError(error as Error));
       }
+    }),
+
+  getMembers: workspaceReadProcedure.query(async ({ ctx, input }) => {
+    const members = await ctx.db.workspaceMembership.findMany({
+      where: {
+        status: MembershipStatus.Active,
+        workspaceId: input.workspaceId,
+      },
+      select: MemberPreviewSelection,
+    });
+
+    return members satisfies MemberPreview[];
+  }),
+
+  searchMember: workspaceReadProcedure
+    .input(z.object({ searchValue: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const membersData = await ctx.db.workspaceMembership.findMany({
+        where: {
+          member: {
+            name: {
+              contains: input.searchValue,
+              mode: "insensitive",
+            },
+          },
+          workspaceId: input.workspaceId,
+          status: "Active",
+        },
+        select: {
+          member: {
+            select: UserPrismaSelection,
+          },
+        },
+      });
+
+      const members = membersData.map((m) => m.member);
+
+      return members as User[];
     }),
 });

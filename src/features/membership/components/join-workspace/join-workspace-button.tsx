@@ -13,6 +13,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useJoinWorkspaceDialog } from "../../hooks/use-join-workspace-dialog";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
+import type { WorkspaceMembership } from "@/types/workspace";
 
 interface Props {
   workspaceId: string;
@@ -35,21 +36,43 @@ const JoinWorkspaceButton = ({ workspaceId, label = "Join" }: Props) => {
       { workspaceId },
       {
         onSuccess: (response) => {
+          const { id, role, status, joinDate, workspace, member } = response;
+
+          const newData = {
+            workspace,
+            membership: { id, role, status },
+          } as WorkspaceMembership;
+
           toast.custom(() => (
             <ToastMessage
-              title={`Successfully joined ${response.workspace.element.name}`}
-              message={`Congratulations! You are now a member of ${response.workspace.element.name}. Click 'Go To Workspace' to start working.`}
+              title={`Successfully joined ${workspace.element.name}`}
+              message={`Congratulations! You are now a member of ${workspace.element.name}. Click 'Go To Workspace' to start working.`}
               mode={Mode.SUCCESS}
             />
           ));
+
           apiUtils.workspace.getMyWorkspaces.setData(undefined, (prev) => {
             if (!prev) return prev;
-            const updatedMyWorkspaces = [...prev.myWorkspaces, response];
+
+            const updatedMyWorkspaces = [...prev.myWorkspaces, newData];
             return { ...prev, myWorkspaces: updatedMyWorkspaces };
           });
-          setIsJoined(true);
 
-          setCurrentWorkspace(response);
+          apiUtils.membership.getMembers.setData(
+            { workspaceId: workspace.id },
+            (prev) => {
+              if (!prev) return [];
+
+              const updatedMembers = [
+                ...prev,
+                { id, role, status, member, joinDate },
+              ];
+
+              return updatedMembers;
+            },
+          );
+          setIsJoined(true);
+          setCurrentWorkspace(newData);
         },
         onError: (error) => {
           toast.custom(() => (

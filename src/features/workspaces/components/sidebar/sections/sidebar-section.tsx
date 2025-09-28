@@ -4,6 +4,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import type { Color } from "@prisma/client";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -17,6 +18,7 @@ interface Props {
   children?: React.ReactNode;
   settings?: React.ReactNode;
   showSettings?: boolean;
+  color?: Color;
 }
 
 const SidebarSection = ({
@@ -25,6 +27,7 @@ const SidebarSection = ({
   children,
   settings,
   showSettings,
+  color = "BLUE",
 }: Props) => {
   const [open, setOpen] = useState(true);
 
@@ -34,7 +37,11 @@ const SidebarSection = ({
         <CollapsibleTrigger asChild>
           <Button className="" variant="ghost">
             <div className="flex flex-row items-center gap-2">
-              {Icon && <Icon className="h-4 w-4" />}
+              {Icon && (
+                <div>
+                  <Icon className="h-4 w-4" />
+                </div>
+              )}
               <p className="text-sm font-semibold">{name}</p>
             </div>
             {open ? <ChevronDownIcon /> : <ChevronRightIcon />}

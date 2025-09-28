@@ -8,6 +8,7 @@ import WorkspaceSidebar from "@/features/workspaces/components/sidebar/workspace
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
+import SidebarSheet from "@/features/sidebar/components/sidebar-sheet";
 
 interface Props {
   children: React.ReactNode;
@@ -21,17 +22,15 @@ const SiteLayout = ({ children }: Props) => {
       {currentWorkspace && (
         <div
           className={cn(
-            open ? "w-80 border-r md:w-96" : "w-0",
-            isMobile ? "hidden" : "block",
-            "overflow-hidden transition-all duration-300 ease-in-out",
+            open ? "w-80 border-r xl:w-96" : "w-0",
+            "hidden overflow-hidden transition-all duration-300 ease-in-out lg:block",
           )}
         >
           <WorkspaceSidebar />
         </div>
       )}
 
-      {/* <AppSidebar /> */}
-      <div className="bg-main-bg flex w-full flex-1 flex-col items-center justify-start">
+      <div className="bg-background flex w-full flex-1 flex-col items-center justify-start">
         <Navbar>
           <NavbarContent />
         </Navbar>

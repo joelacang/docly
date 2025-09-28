@@ -7,6 +7,7 @@ import { membershipRouter } from "./routers/membership";
 import { folderRouter } from "./routers/folder";
 import { collectionRouter } from "./routers/collection";
 import { favoriteRouter } from "./routers/favorite";
+import { teamRouter } from "./routers/team";
 
 /**
  * This is the primary router for your server.
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   folder: folderRouter,
   collection: collectionRouter,
   favorite: favoriteRouter,
+  team: teamRouter,
 });
 
 // export type definition of API

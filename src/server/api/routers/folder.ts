@@ -61,7 +61,10 @@ export const folderRouter = createTRPCRouter({
     .input(z.object({ parentFolderId: z.cuid().nullable() }))
     .query(async ({ ctx, input }) => {
       const foldersData = await ctx.db.folder.findMany({
-        where: { parentFolderId: input.parentFolderId ?? null },
+        where: {
+          parentFolderId: input.parentFolderId ?? null,
+          workspaceId: input.workspaceId,
+        },
         select: {
           ...FolderPreviewPrismaSelection,
           element: {

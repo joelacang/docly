@@ -203,6 +203,7 @@ model Element {
   workspace  Workspace?
   folder     Folder?
   collection Collection?
+  team       Team?
 
   inboxItems InboxItem[]
   owners     ElementOwner[]
@@ -275,6 +276,7 @@ model WorkspaceMembership {
   status      MembershipStatus @default(Pending)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  joinDate    DateTime?
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   member    User      @relation(fields: [memberId], references: [id], onDelete: Cascade)
@@ -286,25 +288,48 @@ model WorkspaceMembership {
   @@index([memberId, status])
 }
 
+enum TeamType {
+  Department //"Permanent organizational unit (e.g., Marketing, Engineering)
+  Project //"Temporary team focused on specific deliverables"
+  CrossFunctional //"Members from different departments working together"
+  SpecialInterest //"Groups focused on shared interests or initiatives"
+}
+
+enum TeamPrivacy {
+  Open //"Anyone in the organization can view and request to join"
+  Closed //"Team is visible but requires approval to join"
+  Secret //"Team is hidden from non-members and invite-only"
+}
+
 model Team {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   workspaceId String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  elementId   String      @unique
+  type        TeamType
+  privacy     TeamPrivacy
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
   members TeamMembership[]
 
   @@index([workspaceId])
 }
 
+enum TeamRole {
+  Leader
+  Officer
+  Member
+}
+
 model TeamMembership {
   id       String           @id @default(cuid())
   teamId   String
   memberId String
-  role     MembershipRole
-  status   MembershipStatus
+  role     TeamRole
+  status   MembershipStatus @default(Active)
 
   team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   member User @relation(fields: [memberId], references: [id], onDelete: Cascade)

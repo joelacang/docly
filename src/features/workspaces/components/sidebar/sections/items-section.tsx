@@ -13,7 +13,7 @@ import WorkspaceItemsList from "@/features/workspace-items/components/workspace-
 const ItemsSection = () => {
   const { currentWorkspace } = useMyWorkspaces();
   const isEditor = Boolean(
-    currentWorkspace?.access && currentWorkspace.access >= Access.EDIT,
+    currentWorkspace?.access && currentWorkspace?.access >= Access.EDIT,
   );
   const [isEmpty, setIsEmpty] = useState(true);
 

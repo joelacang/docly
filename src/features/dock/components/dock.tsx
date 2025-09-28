@@ -11,31 +11,11 @@ import { useJoinWorkspaceDialog } from "@/features/membership/hooks/use-join-wor
 import { useCreateWorkspaceDialog } from "@/features/workspaces/hooks/create-workspace-dialog";
 
 const Dock = () => {
-  const isMobile = useIsMobile();
-  const { onToggle: toggleSidebar, open: isSidebarOpen } =
-    useWorkspaceSidebar();
   const { onOpen: openCreateWorkspace } = useCreateWorkspaceDialog();
   const { myWorkspaces, currentWorkspace } = useMyWorkspaces();
   const { onOpen: openJoinWorkspace } = useJoinWorkspaceDialog();
   return (
     <div className="bg-dock border-dock-border hidden h-full w-20 flex-col items-center justify-between overflow-y-auto border-r py-4 md:flex">
-      <Hint
-        tooltip={isSidebarOpen ? "Close Sidebar" : "Open Sidebar"}
-        side="right"
-      >
-        <Button
-          className="hover:bg-transparent"
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            if (!isMobile) {
-              toggleSidebar();
-            }
-          }}
-        >
-          <SidebarIcon className="text-accent-foreground size-5" />
-        </Button>
-      </Hint>
       <div className="flex flex-1 flex-col items-center justify-start gap-6 py-4">
         <div className="flex flex-col items-center justify-start gap-3">
           {myWorkspaces.map((w) => (

@@ -198,7 +198,7 @@ const SidebarCollectionDropdownMenu = ({ collection, ...props }: Props) => {
           </div>
         </DropdownMenuGroup>
         {items.map((item) => (
-          <MyDropdownMenuItem key={item.id} item={item} color={wsColor} />
+          <MyDropdownMenuItem key={item.id} item={item} color="workspace" />
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

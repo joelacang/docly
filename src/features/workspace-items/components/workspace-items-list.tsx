@@ -40,6 +40,7 @@ const WorkspaceItemsList = ({
     isLoading,
     isError,
     error,
+    refetch,
   } = api.folder.getFolderItems.useQuery({
     parentFolderId,
     workspaceId,
@@ -54,6 +55,14 @@ const WorkspaceItemsList = ({
       onEmpty(isEmpty);
     }
   }, [onEmpty, items]);
+
+  useEffect(() => {
+    if (workspaceId) {
+      refetch().catch((error) =>
+        console.error(`Error refetching getWorkspaceItems`, error),
+      );
+    }
+  }, [workspaceId]);
 
   return (
     <QueryStateHandler

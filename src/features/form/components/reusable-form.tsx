@@ -167,27 +167,33 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn(className, "space-y-6")}
-      >
-        {Object.entries(groupedFields).map(([mainOrder, group]) => {
-          const cols = group.length;
-          return (
-            <div key={mainOrder} className="flex w-full gap-4">
-              {group.map((component) => (
-                <div className="w-full" key={component.name}>
-                  <FormField
-                    name={component.name}
-                    control={form.control}
-                    render={({ field }) => renderField({ field, component })}
-                  />
-                </div>
-              ))}
-            </div>
-          );
-        })}
-        <div>{children}</div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
+        <div className="flex flex-1 flex-col space-y-6">
+          {Object.entries(groupedFields).map(([mainOrder, group]) => {
+            const cols = group.length;
+            return (
+              <div
+                key={mainOrder}
+                className={cn(
+                  cols > 1 ? "grid grid-cols-2 gap-6" : "flex w-full",
+                )}
+              >
+                {group.map((component) => (
+                  <div className="w-full px-0.5" key={component.name}>
+                    <FormField
+                      name={component.name}
+                      control={form.control}
+                      render={({ field }) => renderField({ field, component })}
+                    />
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+          <div>{children}</div>
+          <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre>
+        </div>
+
         <div className="flex w-full items-center justify-end pt-4">
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2Icon className="mr-2 animate-spin" />}

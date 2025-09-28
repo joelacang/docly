@@ -6,13 +6,16 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type React from "react";
-import type { ColorPalette } from "@/utils/colors";
+import { Colors, type ColorPalette } from "@/utils/colors";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   item: MenuItem;
-  color?: ColorPalette;
+  color?: "default" | "workspace";
 }
-const MyDropdownMenuItem = ({ item, color }: Props) => {
+const MyDropdownMenuItem = ({ item, color = "default" }: Props) => {
+  const { currentWorkspace } = useMyWorkspaces();
+  const wsColor = Colors[currentWorkspace?.workspace.element.color ?? "BLUE"];
   if (item.hidden) return null;
   return (
     <div>
@@ -21,7 +24,7 @@ const MyDropdownMenuItem = ({ item, color }: Props) => {
           "flex cursor-pointer items-center justify-between gap-4",
           item.mode === "destructive"
             ? "focus:bg-destructive focus:text-destructive-foreground"
-            : color
+            : color === "workspace"
               ? "focus:bg-[_var(--bg-primary)] focus:text-white dark:focus:bg-[_var(--bg-darkest)]"
               : "focus:bg-accent-neutral",
         )}
@@ -34,8 +37,8 @@ const MyDropdownMenuItem = ({ item, color }: Props) => {
         }}
         style={
           {
-            "--bg-primary": color?.primary ?? "#000",
-            "--bg-darkest": color?.darkest ?? "#000",
+            "--bg-primary": wsColor.primary,
+            "--bg-darkest": wsColor.darkest,
           } as React.CSSProperties
         }
       >

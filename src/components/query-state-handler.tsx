@@ -43,7 +43,7 @@ export function QueryStateHandler<T>({
     (Array.isArray(data) && !data.length && (emptyTitle || emptyDescription))
   ) {
     return (
-      <div className="px-4">
+      <Centered className="px-4">
         <AlertMessage
           title={emptyTitle ?? "No Result Found."}
           description={
@@ -54,7 +54,7 @@ export function QueryStateHandler<T>({
         >
           {emptyContent}
         </AlertMessage>
-      </div>
+      </Centered>
     );
   }
 

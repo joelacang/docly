@@ -15,15 +15,17 @@ import SidebarMenuButton from "@/features/sidebar/components/sidebar-menu-button
 const DashboardSection = () => {
   const { currentWorkspace } = useMyWorkspaces();
   const router = useRouter();
+  const baseUrl = `/workspace/${currentWorkspace?.workspace.element.slug}`;
+
+  if (!currentWorkspace) return null;
+
   const items: MenuItem[] = [
     {
       id: "home",
       label: "Home",
       icon: HomeIcon,
       action: () => {
-        if (currentWorkspace) {
-          router.push(`/workspace/${currentWorkspace.workspace.element.slug}`);
-        }
+        router.push(`${baseUrl}`);
       },
     },
     {
@@ -31,11 +33,7 @@ const DashboardSection = () => {
       label: "Workspace Items",
       icon: ListIcon,
       action: () => {
-        if (currentWorkspace) {
-          router.push(
-            `/workspace/${currentWorkspace.workspace.element.slug}/items`,
-          );
-        }
+        router.push(`${baseUrl}/items`);
       },
     },
     {
@@ -43,11 +41,7 @@ const DashboardSection = () => {
       label: "Memberships",
       icon: Users2Icon,
       action: () => {
-        if (currentWorkspace) {
-          router.push(
-            `/workspace/${currentWorkspace.workspace.element.slug}/memberships`,
-          );
-        }
+        router.push(`${baseUrl}/users/members`);
       },
     },
     {

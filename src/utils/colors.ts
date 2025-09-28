@@ -1,5 +1,5 @@
 import { Mode } from "@/types";
-import { Color } from "@prisma/client";
+import { type Color, MembershipRole, MembershipStatus } from "@prisma/client";
 
 export type ColorPalette = {
   lightest: string; // Very light background/surface
@@ -147,16 +147,16 @@ export const getColorValue = (
 export function getModeColor(mode: Mode): Color {
   switch (mode) {
     case Mode.INFO:
-      return Color.BLUE;
+      return "BLUE";
     case Mode.SUCCESS:
-      return Color.GREEN;
+      return "GREEN";
     case Mode.DEFAULT:
-      return Color.GRAY;
+      return "GRAY";
     case Mode.ERROR:
-      return Color.RED;
+      return "RED";
     case Mode.HELP:
-      return Color.TEAL;
+      return "TEAL";
     default:
-      return Color.GRAY;
+      return "GRAY";
   }
 }

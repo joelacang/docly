@@ -10,12 +10,15 @@ import {
   SearchIcon,
 } from "lucide-react";
 import NavbarButton from "./navbar-button";
+import ToggleSidebarButton from "@/features/dock/components/toggle-sidebar-button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const NavbarContent = () => {
   const { loggedUser } = useAuth();
   return (
     <div className="flex w-full flex-row items-center justify-between px-4 py-0.5">
       <div className="flex items-center justify-start gap-3">
+        <ToggleSidebarButton />
         <Logo size={SIZE.SMALL} />
       </div>
 
