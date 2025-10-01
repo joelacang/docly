@@ -59,6 +59,8 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
     >;
     component: FormFieldComponent<TSchema>;
   }) => {
+    const errors = form.formState.errors[component.name];
+
     return (
       <FormItem>
         <FieldLabel isRequired={component.isRequired}>
@@ -137,7 +139,11 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
             }
           })()}
         </FormControl>
-        {showErrors && <FormMessage />}
+        {showErrors && errors?.message && (
+          <div>
+            <FormMessage />
+          </div>
+        )}
       </FormItem>
     );
   };
@@ -145,6 +151,7 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema as any),
     defaultValues,
+    mode: "onBlur",
   });
 
   const fieldComponents = fields.slice().sort((a, b) => {
@@ -191,7 +198,6 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
             );
           })}
           <div>{children}</div>
-          <pre>{JSON.stringify(form.formState.errors, null, 2)}</pre>
         </div>
 
         <div className="flex w-full items-center justify-end pt-4">

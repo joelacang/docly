@@ -70,7 +70,7 @@ const DashboardSection = () => {
     },
   ];
   return (
-    <SidebarSection name="DASHBOARD" icon={LayoutDashboardIcon}>
+    <SidebarSection name="DASHBOARD" icon={LayoutDashboardIcon} color="PURPLE">
       <div className="space-y-1">
         {items.map((item) => (
           <SidebarMenuButton key={item.id} item={item} />

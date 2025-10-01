@@ -1,8 +1,9 @@
-import type { MemberOption } from "@/types/member";
+import type { SearchOption } from "@/types";
+
 import { useTheme } from "next-themes";
 import type { StylesConfig } from "react-select";
 
-const useSelectStyles = (): StylesConfig<MemberOption, true> => {
+const useSelectStyles = <T>() => {
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
 
@@ -23,7 +24,6 @@ const useSelectStyles = (): StylesConfig<MemberOption, true> => {
       display: "flex",
       minWidth: 0,
       width: "100%",
-      boxShadow: `0 1px 2px 0 rgba(0, 0, 0, 0.1)`,
       fontSize: 14, // base text size, md:text-sm is 14px
       fontWeight: 400,
 
@@ -90,7 +90,7 @@ const useSelectStyles = (): StylesConfig<MemberOption, true> => {
         ? "0 4px 6px rgba(0, 0, 0, 0.9)"
         : "0 4px 6px rgba(0, 0, 0, 0.1)",
     }),
-  };
+  } as StylesConfig<T, boolean>;
 };
 
 export default useSelectStyles;

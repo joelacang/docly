@@ -19,10 +19,11 @@ const ItemsSection = () => {
 
   return (
     <SidebarSection
-      name="ITEMS"
+      name="WORKSPACE ITEMS"
       icon={ListIcon}
       showSettings={!isEmpty}
       settings={<AddItemButton isCompact />}
+      color={currentWorkspace?.workspace.element.color}
     >
       <div className={cn(isEmpty && "my-2 rounded-xl border-2 border-dashed")}>
         {currentWorkspace && (

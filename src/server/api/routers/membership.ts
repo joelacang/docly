@@ -70,7 +70,7 @@ export const membershipRouter = createTRPCRouter({
         return results;
       } catch (error) {
         console.error(`Error joining workspace: `, error);
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 
@@ -87,7 +87,13 @@ export const membershipRouter = createTRPCRouter({
   }),
 
   searchMember: workspaceReadProcedure
-    .input(z.object({ searchValue: z.string() }))
+    .input(
+      z.object({
+        searchValue: z.string(),
+        teamId: z.cuid().optional(),
+        limit: z.number().min(1).max(100).optional().default(20),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const membersData = await ctx.db.workspaceMembership.findMany({
         where: {
@@ -103,6 +109,12 @@ export const membershipRouter = createTRPCRouter({
         select: {
           member: {
             select: UserPrismaSelection,
+          },
+        },
+        take: input.limit,
+        orderBy: {
+          member: {
+            name: "asc",
           },
         },
       });

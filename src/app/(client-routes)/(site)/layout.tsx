@@ -1,6 +1,7 @@
 import Dock from "@/features/dock/components/dock";
 import { AuthProvider } from "@/providers/auth-provider";
 import DialogProvider from "@/providers/dialog-provider";
+import { TeamProvider } from "@/providers/team-provider";
 import { WorkspaceProvider } from "@/providers/workspace-provider";
 import type React from "react";
 

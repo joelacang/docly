@@ -20,6 +20,17 @@ import { Access } from "@/types/workspace";
 import { unAuthorized } from "../helper-functions";
 import { Input } from "@/components/ui/input";
 import { MembershipStatus } from "@prisma/client";
+import {
+  MyTeamMembershipSelectedFields,
+  TeamMembershipDetailsSelectedFields,
+  TeamSummarySelectedFields,
+} from "../helper-functions/prisma";
+import {
+  convertToMyTeamMembership,
+  convertToTeamMembershipDetails,
+  convertToTeamSummary,
+} from "../helper-functions/team";
+import { getTeamAccess, TeamAccess } from "@/types/team";
 
 /**
  * 1. CONTEXT
@@ -119,10 +130,9 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   if (!ctx.session?.user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You must be logged in to access this resource.",
-    });
+    throw new TRPCError(
+      unAuthorized("You must be logged in to access this resource."),
+    );
   }
 
   const user = await ctx.db.user.findUnique({
@@ -133,10 +143,9 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   });
 
   if (!user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You must be logged in to use this resource",
-    });
+    throw new TRPCError(
+      unAuthorized("You must be logged in to access this resource"),
+    );
   }
 
   return next({
@@ -154,7 +163,6 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 });
 
 export const workspaceReadProcedure = protectedProcedure
-  .use(timingMiddleware)
   .input(z.object({ workspaceId: z.cuid() }))
   .use(async ({ ctx, input, next }) => {
     const details = await getWorkspaceMembership({
@@ -162,9 +170,13 @@ export const workspaceReadProcedure = protectedProcedure
       userId: ctx.session.user.id,
     });
 
-    if (!details) throw new TRPCError(unAuthorized);
+    if (!details)
+      throw new TRPCError(unAuthorized("No Workspace Membership found."));
 
-    if (details.access === Access.NO_ACCESS) throw new TRPCError(unAuthorized);
+    if (details.access === Access.NO_ACCESS)
+      throw new TRPCError(
+        unAuthorized("You don't have any access to this workspace"),
+      );
 
     return next({
       ctx: {
@@ -185,7 +197,10 @@ export const workspaceEditProcedure = workspaceReadProcedure.use(
 
     const canEdit = access > Access.READ_ONLY;
 
-    if (!canEdit) throw new TRPCError(unAuthorized);
+    if (!canEdit)
+      throw new TRPCError(
+        unAuthorized("You don't have edit access on this workspace."),
+      );
 
     return next({
       ctx,
@@ -201,7 +216,10 @@ export const workspaceAdminProcedure = workspaceReadProcedure.use(
 
     const isAdmin = access >= Access.ADMIN;
 
-    if (!isAdmin) throw new TRPCError(unAuthorized);
+    if (!isAdmin)
+      throw new TRPCError(
+        unAuthorized("You don't have admin access on this workspace."),
+      );
 
     return next({
       ctx,
@@ -212,16 +230,101 @@ export const workspaceAdminProcedure = workspaceReadProcedure.use(
 export const teamReadProcedure = workspaceReadProcedure
   .input(z.object({ teamId: z.cuid() }))
   .use(async ({ ctx, input, next }) => {
-    const teamMembership = await ctx.db.teamMembership.findFirst({
+    const workspaceAccess = ctx.session.workspaceMembership.access;
+    const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
+
+    const teamData = await ctx.db.team.findUnique({
+      where: { id: input.teamId },
+      select: {
+        ...TeamSummarySelectedFields,
+      },
+    });
+
+    if (!teamData)
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No Team Found.",
+      });
+
+    const team = convertToTeamSummary(teamData);
+
+    const teamMembershipData = await ctx.db.teamMembership.findFirst({
       where: {
-        teamId: input.teamId,
+        teamId: team.id,
         team: {
-          workspaceId: input.workspaceId,
+          workspaceId: ctx.session.workspaceMembership.workspace.id,
         },
         memberId: ctx.session.user.id,
         status: MembershipStatus.Active,
       },
+      select: {
+        ...TeamMembershipDetailsSelectedFields,
+      },
     });
-    if (!teamMembership) throw new TRPCError(unAuthorized);
-    return next();
+
+    if (!teamMembershipData && !isWorkspaceAdmin)
+      throw new TRPCError(
+        unAuthorized("You don't have read access on this team."),
+      );
+
+    const teamMembership = teamMembershipData
+      ? convertToTeamMembershipDetails(teamMembershipData)
+      : null;
+
+    return next({
+      ctx: {
+        ...ctx,
+        session: {
+          ...ctx.session,
+          team: {
+            ...team,
+            membership: teamMembership,
+          },
+        },
+      },
+    });
   });
+
+export const teamAdminProcedure = teamReadProcedure.use(
+  async ({ ctx, next }) => {
+    const workspaceAccess = ctx.session.workspaceMembership.access;
+
+    const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
+
+    const role = ctx.session.team.membership?.role;
+
+    const teamAccess = role ? getTeamAccess(role) : TeamAccess.NO_ACCESS;
+
+    const isTeamAdmin = teamAccess >= TeamAccess.ADMIN;
+
+    if (!isTeamAdmin && !isWorkspaceAdmin) {
+      throw new TRPCError(
+        unAuthorized("You don't have admin access on this team."),
+      );
+    }
+
+    return next({ ctx });
+  },
+);
+
+export const teamLeaderProcedure = teamReadProcedure.use(
+  async ({ ctx, next }) => {
+    const workspaceAccess = ctx.session.workspaceMembership.access;
+
+    const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
+
+    const role = ctx.session.team.membership?.role;
+
+    const teamAccess = role ? getTeamAccess(role) : TeamAccess.NO_ACCESS;
+
+    const isTeamLeader = teamAccess === TeamAccess.LEADER;
+
+    if (!isTeamLeader && !isWorkspaceAdmin) {
+      throw new TRPCError(
+        unAuthorized("You don't have leader access on this team."),
+      );
+    }
+
+    return next({ ctx });
+  },
+);

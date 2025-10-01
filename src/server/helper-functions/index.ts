@@ -28,16 +28,16 @@ export function generateId(length: number): string {
   return result;
 }
 
-export const unAuthorized = {
+export const unAuthorized = (message: string | null) => ({
   code: "UNAUTHORIZED" as TRPC_ERROR_CODE_KEY,
-  message: "You are not allowed to perform this procedure.",
-};
+  message: message ?? "You are not allowed to perform this procedure.",
+});
 
-export const unknownError = (error: Error) => {
+export const unknownError = (error: TRPCError) => {
   return {
     name: "unknownError",
-    code: "INTERNAL_SERVER_ERROR",
-    message: "An unknown error occurred",
+    code: error.code,
+    message: error.message,
     cause: error,
   } satisfies TRPCError;
 };

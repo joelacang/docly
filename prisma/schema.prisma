@@ -46,7 +46,8 @@ model User {
   elementOwnershipsCreated ElementOwner[]                  @relation("ElementOwnershipCreator")
   preference               UserPreference?
   favorites                Favorite[]
-  teamMemberships          TeamMembership[]
+  teamMemberships          TeamMembership[]                @relation("TeamMember")
+  teamMembersAdded         TeamMembership[]                @relation("TeamMemberCreator")
 
   @@unique([email])
   @@index([email])
@@ -325,14 +326,17 @@ enum TeamRole {
 }
 
 model TeamMembership {
-  id       String           @id @default(cuid())
-  teamId   String
-  memberId String
-  role     TeamRole
-  status   MembershipStatus @default(Active)
+  id        String           @id @default(cuid())
+  teamId    String
+  memberId  String
+  role      TeamRole
+  status    MembershipStatus @default(Active)
+  createdAt DateTime         @default(now())
+  addedById String?
 
-  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  member User @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  team    Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  member  User  @relation("TeamMember", fields: [memberId], references: [id], onDelete: Cascade)
+  addedBy User? @relation("TeamMemberCreator", fields: [addedById], references: [id], onDelete: Cascade)
 
   @@unique([teamId, memberId])
   @@index([teamId, status])

@@ -43,3 +43,9 @@ export enum Mode {
   DEFAULT,
   HELP,
 }
+
+export type SearchOption<T> = {
+  value: string;
+  label: string;
+  data: T;
+};

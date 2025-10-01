@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import { SIZE } from "@/types";
-import type { TeamPreview } from "@/types/team";
+import type { TeamSummary } from "@/types/team";
 import { Colors } from "@/utils/colors";
 import { getAvatarSize, getAvatarText } from "@/utils/sizes";
 import { useRouter } from "next/navigation";
 
 interface Props {
-  team: TeamPreview;
+  team: TeamSummary;
   size?: SIZE;
   disabled?: boolean;
 }
@@ -19,7 +19,12 @@ const TeamAvatar = ({ team, size = SIZE.MEDIUM, disabled = false }: Props) => {
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+        "flex shrink-0 items-center justify-center transition-all duration-300",
+        size === SIZE.MICRO
+          ? "rounded-sm"
+          : SIZE.SMALL
+            ? "rounded-md"
+            : "rounded-xl",
         avatarSize,
       )}
       style={{

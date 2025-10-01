@@ -25,7 +25,7 @@ export const memberColumns: ColumnDef<MemberPreview>[] = [
     cell: ({ row }) => {
       return (
         <div className="px-4">
-          <UserBadge user={row.original.member} micro />
+          <UserBadge user={row.original.member} />
         </div>
       );
     },

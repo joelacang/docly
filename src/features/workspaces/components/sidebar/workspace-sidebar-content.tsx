@@ -4,6 +4,7 @@ import FavoritesSection from "./sections/favorites-section";
 import ItemsSection from "./sections/items-section";
 import { SearchIcon } from "lucide-react";
 import DashboardSection from "./sections/dashboard-section";
+import TeamSection from "./sections/teams-section";
 
 const WorkspaceSidebarContent = () => {
   const { currentWorkspace } = useMyWorkspaces();
@@ -18,10 +19,11 @@ const WorkspaceSidebarContent = () => {
       </div>
 
       <div className="flex h-[calc(100vh-150px)] flex-col overflow-y-auto">
-        <div className="h-full space-y-4 p-2">
+        <div className="h-full space-y-6 p-2">
           <DashboardSection />
           <FavoritesSection />
           <ItemsSection />
+          <TeamSection />
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ const UserBadge = ({ user, children, micro = false, styled }: Props) => {
       <div className="flex flex-col items-start justify-center">
         <p
           className={cn(
-            "font-sans leading-none font-semibold",
+            "text-foreground font-sans leading-none font-semibold",
             micro ? "text-xs" : "text-lg",
           )}
         >

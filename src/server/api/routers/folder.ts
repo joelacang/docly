@@ -53,7 +53,7 @@ export const folderRouter = createTRPCRouter({
 
         return results;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 
@@ -177,7 +177,7 @@ export const folderRouter = createTRPCRouter({
 
         return result;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 });

@@ -4,6 +4,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { Colors } from "@/utils/colors";
 import type { Color } from "@prisma/client";
 import {
   ChevronDownIcon,
@@ -30,6 +32,7 @@ const SidebarSection = ({
   color = "BLUE",
 }: Props) => {
   const [open, setOpen] = useState(true);
+  const palette = Colors[color];
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
@@ -38,7 +41,17 @@ const SidebarSection = ({
           <Button className="" variant="ghost">
             <div className="flex flex-row items-center gap-2">
               {Icon && (
-                <div>
+                <div
+                  className="rounded-full bg-gradient-to-b from-[_var(--col-primary)] to-[_var(--col-dark)] p-1.5 text-white dark:from-[_var(--col-primary)] dark:to-[_var(--col-darkest)]"
+                  style={
+                    {
+                      "--col-primary": palette.primary,
+                      "--col-light": palette.light,
+                      "--col-dark": palette.dark,
+                      "--col-darkest": palette.darkest,
+                    } as React.CSSProperties
+                  }
+                >
                   <Icon className="h-4 w-4" />
                 </div>
               )}

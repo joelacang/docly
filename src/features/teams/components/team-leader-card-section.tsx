@@ -4,9 +4,9 @@ import type { User } from "@/types/user";
 interface Props {
   leaders: User[];
 }
-const TeamLeaderCardSection = ({ leaders }: Props) => {
+const TeamLeadersCardSection = ({ leaders }: Props) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-row flex-wrap items-center gap-2">
       <p className="text-sm font-semibold">Leader:</p>
       <div className="flex flex-row flex-wrap gap-4">
         {leaders.map((leader) => (
@@ -17,4 +17,4 @@ const TeamLeaderCardSection = ({ leaders }: Props) => {
   );
 };
 
-export default TeamLeaderCardSection;
+export default TeamLeadersCardSection;

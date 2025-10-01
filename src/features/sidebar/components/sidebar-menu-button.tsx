@@ -4,6 +4,7 @@ import { Colors } from "@/utils/colors";
 import type React from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface Props {
   item: MenuItem;
@@ -19,7 +20,9 @@ const SidebarMenuButton = ({
 }: Props) => {
   const { currentWorkspace } = useMyWorkspaces();
   const color = Colors[currentWorkspace?.workspace.element.color ?? "GREEN"];
-  const iconColor = item.color && Colors[item.color];
+  const iconColor = item.color ? Colors[item.color] : Colors.GRAY;
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   return (
     <div
@@ -47,10 +50,26 @@ const SidebarMenuButton = ({
         <div className="flex items-center justify-start gap-2">
           {item.icon && (
             <item.icon
-              className="size-5 shrink-0 group-hover:text-white"
+              className={cn(
+                "size-5 shrink-0",
+                item.color
+                  ? "text-[_var(--col-primary)]"
+                  : "text-foreground group-hover:text-white",
+              )}
+              style={
+                {
+                  "--col-primary": iconColor.primary,
+                  "--col-darkest": iconColor.darkest,
+                } as React.CSSProperties
+              }
               strokeWidth={1.5}
-              color={iconColor?.primary}
-              fill={iconColor?.lightest ?? "none"}
+              fill={
+                item.color
+                  ? isDarkMode
+                    ? iconColor.darkest
+                    : iconColor.lightest
+                  : "none"
+              }
             />
           )}
           <p className="line-clamp-1 text-base">{item.label}</p>

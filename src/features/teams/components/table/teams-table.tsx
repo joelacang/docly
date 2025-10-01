@@ -1,11 +1,8 @@
 import { QueryStateHandler } from "@/components/query-state-handler";
 import { api } from "@/trpc/react";
-import TeamAvatar from "../team-avatar";
-import TeamBadge from "../team-badge";
 import TeamCard from "../team-card";
 import { DataTable } from "@/components/ui/data-table";
 import { teamColumns } from "./team-columns";
-import SearchResultHeader from "@/components/custom/search-result-header";
 
 interface Props {
   workspaceId: string;
@@ -43,7 +40,7 @@ const TeamsTable = ({ workspaceId }: Props) => {
           </div>
           <div className="flex flex-col gap-4 @3xl:hidden">
             {teams.map((team) => (
-              <TeamCard team={team} key={team.id} />
+              <TeamCard teamDetails={team} key={team.team.id} />
             ))}
           </div>
         </div>

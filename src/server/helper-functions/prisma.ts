@@ -1,5 +1,6 @@
 import { MembershipStatus, Prisma, TeamRole } from "@prisma/client";
 import { UserPrismaSelection } from "./user";
+import type { TeamMembershipDetails } from "@/types/team";
 
 export const ElementPreviewPrismaSelection = {
   id: true,
@@ -8,6 +9,7 @@ export const ElementPreviewPrismaSelection = {
   status: true,
   type: true,
   color: true,
+  description: true,
 };
 
 const elementPreviewSection = Prisma.validator()(ElementPreviewPrismaSelection);
@@ -114,41 +116,78 @@ export const WorkspacePreviewSelection = {
   },
 };
 
-export const TeamPreviewBaseSelection = {
+export const TeamMembershipDetailsSelectedFields = {
+  id: true,
+  role: true,
+  status: true,
+  createdAt: true,
+};
+
+export const TeamMembershipDetailsSelectionValidator =
+  Prisma.validator<Prisma.TeamMembershipFindManyArgs>()({
+    select: TeamMembershipDetailsSelectedFields,
+  });
+
+export type TeamMembershipDetailsSelected = Prisma.TeamMembershipGetPayload<{
+  select: typeof TeamMembershipDetailsSelectedFields;
+}>;
+
+export const TeamMemberProfileSelectedFields = {
+  ...TeamMembershipDetailsSelectedFields,
+  member: { select: UserPrismaSelection },
+};
+
+export const TeamMemberProfileValidator =
+  Prisma.validator<Prisma.TeamMembershipFindManyArgs>()({
+    select: TeamMemberProfileSelectedFields,
+  });
+
+export type TeamMemberProfileSelected = Prisma.TeamMembershipGetPayload<{
+  select: typeof TeamMemberProfileSelectedFields;
+}>;
+
+export const TeamSummarySelectedFields = {
   id: true,
   type: true,
   privacy: true,
   workspaceId: true,
-  members: {
-    where: {
-      status: MembershipStatus.Active,
-      role: TeamRole.Leader,
-    },
-    select: {
-      member: {
-        select: UserPrismaSelection,
-      },
-    },
+  createdAt: true,
+  element: {
+    select: ElementPreviewPrismaSelection,
   },
   _count: {
     select: {
       members: {
-        where: { status: MembershipStatus.Active },
+        where: {
+          status: MembershipStatus.Active,
+        },
       },
     },
   },
 };
 
-export const TeamPreviewSelection = {
-  ...TeamPreviewBaseSelection,
-  element: {
-    select: ElementPreviewPrismaSelection,
+export const TeamSummaryValidator = Prisma.validator<Prisma.TeamFindManyArgs>()(
+  {
+    select: TeamSummarySelectedFields,
+  },
+);
+
+export type TeamSummarySelected = Prisma.TeamGetPayload<{
+  select: typeof TeamSummarySelectedFields;
+}>;
+
+export const MyTeamMembershipSelectedFields = {
+  ...TeamMembershipDetailsSelectedFields,
+  team: {
+    select: TeamSummarySelectedFields,
   },
 };
 
-export const validTeamPreviewSelection =
-  Prisma.validator()(TeamPreviewSelection);
+export const validMyTeamMembershipSelection =
+  Prisma.validator<Prisma.TeamMembershipFindManyArgs>()({
+    select: MyTeamMembershipSelectedFields,
+  });
 
-export type TeamPreviewSelected = Prisma.TeamGetPayload<{
-  select: typeof validTeamPreviewSelection;
+export type MyTeamMembershipSelected = Prisma.TeamMembershipGetPayload<{
+  select: typeof MyTeamMembershipSelectedFields;
 }>;

@@ -30,6 +30,7 @@ export type ElementPreview = {
   name: string;
   slug: string;
   status: ElementStatus;
+  description?: string | null;
   type: ElementType;
   color: Color;
   avatarUrl?: string | null;

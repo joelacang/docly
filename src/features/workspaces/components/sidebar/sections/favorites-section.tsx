@@ -46,7 +46,7 @@ const items: MenuItem[] = [
 const FavoritesSection = () => {
   const { currentWorkspace } = useMyWorkspaces();
   return (
-    <SidebarSection name="FAVORITES" icon={StarIcon}>
+    <SidebarSection name="FAVORITES" icon={StarIcon} color="YELLOW">
       {currentWorkspace && (
         <FavoriteList workspaceId={currentWorkspace.workspace.id} />
       )}

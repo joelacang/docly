@@ -7,22 +7,38 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import type { MenuItem } from "@/types";
-import type { TeamPreview } from "@/types/team";
-import { Colors } from "@/utils/colors";
+import {
+  getTeamAccess,
+  TeamAccess,
+  type TeamMembershipDetails,
+  type TeamSummary,
+} from "@/types/team";
+
 import {
   EyeIcon,
   MoreHorizontalIcon,
   PencilIcon,
   TrashIcon,
-  UserCheckIcon,
   UserPlusIcon,
 } from "lucide-react";
+import { useAddTeamMembersDialog } from "../hooks/use-add-team-members-dialog";
+import { useMyTeams } from "@/providers/team-provider";
+import { Access } from "@/types/workspace";
 
 interface Props {
-  team: TeamPreview;
+  team: TeamSummary;
 }
 
 const TeamDropdownMenu = ({ team }: Props) => {
+  const { myTeams } = useMyTeams();
+  const myMembership = myTeams.find((t) => t.team.id === team.id);
+  const myTeamAccess = myMembership
+    ? getTeamAccess(myMembership.membership.role)
+    : TeamAccess.NO_ACCESS;
+  const { currentWorkspace } = useMyWorkspaces();
+  const myWorkspaceAccess = currentWorkspace?.access ?? Access.NO_ACCESS;
+
+  const { onOpen: openAddTeamMemberDialog } = useAddTeamMembersDialog();
   const items: MenuItem[] = [
     {
       id: "view-team",
@@ -33,10 +49,17 @@ const TeamDropdownMenu = ({ team }: Props) => {
       id: "add-team-member",
       label: "Add Team Member",
       icon: UserPlusIcon,
+      hidden:
+        myTeamAccess < TeamAccess.ADMIN && myWorkspaceAccess < Access.ADMIN,
+      action: () => {
+        openAddTeamMemberDialog(team);
+      },
     },
     {
       id: "edit-team",
       label: "Edit Team",
+      hidden:
+        myTeamAccess !== TeamAccess.LEADER && myWorkspaceAccess < Access.ADMIN,
       icon: PencilIcon,
     },
     {
@@ -44,6 +67,8 @@ const TeamDropdownMenu = ({ team }: Props) => {
       label: "Delete Team",
       icon: TrashIcon,
       mode: "destructive",
+      hidden:
+        myTeamAccess !== TeamAccess.LEADER && myWorkspaceAccess < Access.ADMIN,
     },
   ];
   return (

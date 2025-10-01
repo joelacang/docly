@@ -10,24 +10,43 @@ import Select, {
   type MultiValue,
   type MultiValueProps,
   type OptionProps,
+  type SingleValue,
   type StylesConfig,
   components,
 } from "react-select";
 
-interface Props {
+interface BaseMemberSearchProps {
   workspaceId: string;
-  value: MemberOption[];
-  onChange: (members: MemberOption[]) => void;
+  teamId?: string;
   disabled?: boolean;
   placeholder?: string;
 }
-const MemberSearch = ({
-  workspaceId,
-  value,
-  onChange,
-  disabled,
-  placeholder = "Enter Member To Search...",
-}: Props) => {
+
+interface SingleMemberSearchProps extends BaseMemberSearchProps {
+  mode: "single";
+  value: MemberOption | null;
+  onChange: (member: MemberOption | null) => void;
+}
+
+interface MultipleMemberSearchProps extends BaseMemberSearchProps {
+  mode: "multiple";
+  value: MemberOption[];
+  onChange: (members: MemberOption[]) => void;
+}
+
+type MemberSearchProps = SingleMemberSearchProps | MultipleMemberSearchProps;
+
+const MemberSearch = (props: MemberSearchProps) => {
+  const {
+    workspaceId,
+    teamId,
+    value,
+    mode,
+    onChange,
+    disabled,
+    placeholder = "Enter Member To Search...",
+  } = props;
+
   const [enteredText, setEnteredText] = useState("");
   const searchValue = useDebounced(enteredText.trim(), 500);
   const styles = useSelectStyles();
@@ -46,17 +65,22 @@ const MemberSearch = ({
     }));
   }, [fetchedMembers]);
 
-  const handleChange = (options: MultiValue<MemberOption>) => {
-    onChange(options as MemberOption[]);
+  const handleChange = (
+    newValue: SingleValue<MemberOption> | MultiValue<MemberOption>,
+  ) => {
+    if (mode === "multiple") {
+      onChange(newValue as MemberOption[]);
+    } else {
+      onChange(newValue as MemberOption | null);
+    }
   };
 
   const handleInputChange = (inputValue: string) => {
     setEnteredText(inputValue);
   };
 
-  const CustomOption = (props: OptionProps<MemberOption, true>) => {
+  const CustomOption = (props: OptionProps<MemberOption, boolean>) => {
     const { data, innerRef, innerProps } = props;
-
     return (
       <div
         className="hover:bg-muted cursor-pointer p-2"
@@ -104,15 +128,15 @@ const MemberSearch = ({
   return (
     <Select
       className="w-full"
-      isMulti
+      isMulti={mode === "multiple"}
       styles={styles}
       options={options}
       onChange={handleChange}
       inputId="member-search"
       inputValue={enteredText}
-      defaultValue={value}
+      value={value}
       onInputChange={handleInputChange}
-      closeMenuOnSelect={false}
+      closeMenuOnSelect={mode === "single"}
       isLoading={isLoading}
       placeholder={placeholder}
       isDisabled={disabled}

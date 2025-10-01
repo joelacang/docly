@@ -1,31 +1,29 @@
 import Badge from "@/components/custom/badge";
-import type { TeamPreview } from "@/types/team";
+import type { TeamMembers } from "@/types/team";
 
 import TeamBadge from "./team-badge";
 import { teamPrivacyIcon } from "@/utils/icon";
 import { MoreHorizontalIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type React from "react";
 import { Colors } from "@/utils/colors";
 import Hint from "@/components/hint";
-import TeamLeaderCardSection from "./team-leader-card-section";
+import TeamCardDetails from "./team-card-details";
 
 interface Props {
-  team: TeamPreview;
+  teamDetails: TeamMembers;
 }
 
-const TeamCard = ({ team }: Props) => {
-  const iconDisplay = teamPrivacyIcon[team.privacy];
+const TeamCard = ({ teamDetails }: Props) => {
+  const iconDisplay = teamPrivacyIcon[teamDetails.team.privacy];
   const Icon = iconDisplay.icon;
   const iconColors = Colors[iconDisplay.color];
+
   return (
     <div className="bg-card relative flex w-full cursor-pointer items-start justify-between gap-6 rounded-xl border p-5">
       {/* Left side - User info */}
       <div className="flex w-full flex-1">
-        <TeamBadge team={team}>
-          {team.leaders.length ? (
-            <TeamLeaderCardSection leaders={team.leaders} />
-          ) : null}
+        <TeamBadge team={teamDetails.team}>
+          <TeamCardDetails team={teamDetails} />
         </TeamBadge>
       </div>
 
@@ -33,10 +31,10 @@ const TeamCard = ({ team }: Props) => {
       <div className="flex flex-shrink-0 flex-row items-center gap-4">
         <div className="w-fit">
           <div className="hidden md:flex">
-            <Badge display={iconDisplay}>{team.privacy}</Badge>
+            <Badge display={iconDisplay}>{teamDetails.team.privacy}</Badge>
           </div>
           <div className="flex md:hidden">
-            <Hint tooltip={`${team.privacy} Group`}>
+            <Hint tooltip={`${teamDetails.team.privacy} Group`}>
               <div
                 className="cursor-pointer rounded-full border border-[_var(--icon-primary)] bg-[_var(--icon-light)] p-2.5 text-[_var(--icon-primary)] dark:bg-[_var(--icon-darkest)] dark:text-[_var(--icon-light)]"
                 style={
