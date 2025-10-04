@@ -1,5 +1,7 @@
 import {
   createTeamSchema,
+  getTeamAccess,
+  TeamAccess,
   type MyTeamMembership,
   type TeamMembers,
 } from "@/types/team";
@@ -22,6 +24,7 @@ import {
   convertToTeamSummary,
 } from "@/server/helper-functions/team";
 import { MembershipStatus, TeamRole } from "@prisma/client";
+import z from "zod";
 
 export const teamRouter = createTRPCRouter({
   create: workspaceAdminProcedure
@@ -160,7 +163,7 @@ export const teamRouter = createTRPCRouter({
     return teams;
   }),
 
-  getMyTeams: workspaceReadProcedure.query(async ({ ctx, input }) => {
+  getMyTeams: workspaceReadProcedure.query(async ({ ctx }) => {
     const teamsData = await ctx.db.teamMembership.findMany({
       where: {
         memberId: ctx.session.user.id,
@@ -169,7 +172,7 @@ export const teamRouter = createTRPCRouter({
           element: {
             status: "Active",
           },
-          workspaceId: input.workspaceId,
+          workspaceId: ctx.session.workspaceMembership.workspace.id,
         },
       },
       select: MyTeamMembershipSelectedFields,
@@ -186,6 +189,95 @@ export const teamRouter = createTRPCRouter({
       return convertToMyTeamMembership(t);
     });
 
-    return myTeams;
+    const membershipRecord = await ctx.db.workspaceMembership.findFirst({
+      where: {
+        workspaceId: ctx.session.workspaceMembership.workspace.id,
+        memberId: ctx.session.user.id,
+      },
+      select: {
+        id: true,
+        lastTeamSelectedId: true,
+      },
+    });
+
+    const lastTeamSelected =
+      myTeams.find((t) => t.team.id === membershipRecord?.lastTeamSelectedId) ??
+      myTeams[0] ??
+      null;
+
+    // ✅ If there's no stored ID, and we have at least one team, update the record
+    if (!membershipRecord?.lastTeamSelectedId && lastTeamSelected) {
+      await ctx.db.workspaceMembership.update({
+        where: { id: membershipRecord!.id },
+        data: {
+          lastTeamSelectedId: lastTeamSelected.team.id,
+        },
+      });
+    }
+
+    return { myTeams, lastTeamSelected };
   }),
+
+  getTeamBySlug: workspaceReadProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const teamData = await ctx.db.team.findFirst({
+        where: { element: { slug: input.slug } },
+        select: {
+          ...TeamSummarySelectedFields,
+          members: {
+            where: {
+              memberId: ctx.session.user.id,
+            },
+            select: TeamMemberProfileSelectedFields,
+          },
+        },
+      });
+
+      if (!teamData)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Team Data not Found.",
+        });
+      const { members, ...summary } = teamData;
+
+      const team = convertToTeamSummary(summary);
+      const membershipInfo = members.map((m) =>
+        convertToTeamMemberProfile(m),
+      )[0];
+      const workspaceRole = ctx.session.workspaceMembership.membership?.role;
+
+      const teamAccess =
+        membershipInfo && workspaceRole
+          ? getTeamAccess(membershipInfo.membership.role, workspaceRole)
+          : TeamAccess.NO_ACCESS;
+
+      return {
+        team,
+        memberInfo: membershipInfo ?? null,
+        access: teamAccess,
+      };
+    }),
+
+  setLastTeamSelected: workspaceReadProcedure
+    .input(z.object({ teamId: z.cuid() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session.workspaceMembership.membership)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Membership not found. ",
+        });
+
+      const updatedMembership = await ctx.db.workspaceMembership.update({
+        where: { id: ctx.session.workspaceMembership.membership.id },
+        data: {
+          lastTeamSelectedId: input.teamId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return { success: true, updatedMembership };
+    }),
 });

@@ -1,6 +1,7 @@
 import { Mode } from "@/types";
 import type {
   Color,
+  ElementStatus,
   MembershipRole,
   MembershipStatus,
   TeamPrivacy,
@@ -9,19 +10,25 @@ import type {
 import {
   Ban,
   Building,
+  CheckCircle,
   CheckCircle2,
   CheckCircle2Icon,
+  CheckCircleIcon,
   Clock,
   Crown,
   EyeOff,
+  FileEdit,
   GanttChart,
   HelpCircleIcon,
   InfoIcon,
   Lock,
   PauseCircle,
   PencilLine,
+  ShieldAlert,
+  ShieldAlertIcon,
   ShieldCheck,
   Star,
+  Trash2,
   TriangleAlertIcon,
   User,
   UserPlus,
@@ -124,5 +131,28 @@ export const memberStatusIcon: Record<MembershipStatus, IconDisplay> = {
   Blocked: {
     icon: Ban,
     color: "RED",
+  },
+};
+
+export const elementStatusIcon: Record<ElementStatus, IconDisplay> = {
+  Pending: {
+    icon: Clock,
+    color: "YELLOW",
+  },
+  Active: {
+    icon: CheckCircle,
+    color: "GREEN",
+  },
+  Restricted: {
+    icon: ShieldAlert,
+    color: "ORANGE",
+  },
+  Deleted: {
+    icon: Trash2,
+    color: "RED",
+  },
+  Draft: {
+    icon: FileEdit,
+    color: "GRAY",
   },
 };

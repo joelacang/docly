@@ -1,5 +1,5 @@
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import WorkspaceSidebar from "@/features/workspaces/components/sidebar/workspace-sidebar";
+import TeamSidebar from "@/features/teams/components/sidebar/team-sidebar";
 import { useSidebarSheet } from "../hooks/use-sidebar-sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,7 +10,7 @@ const SidebarSheet = () => {
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="left">
-        <WorkspaceSidebar />
+        <TeamSidebar />
       </SheetContent>
     </Sheet>
   );

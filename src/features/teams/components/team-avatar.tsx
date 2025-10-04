@@ -9,9 +9,15 @@ interface Props {
   team: TeamSummary;
   size?: SIZE;
   disabled?: boolean;
+  className?: string;
 }
 
-const TeamAvatar = ({ team, size = SIZE.MEDIUM, disabled = false }: Props) => {
+const TeamAvatar = ({
+  team,
+  size = SIZE.MEDIUM,
+  disabled = false,
+  className,
+}: Props) => {
   const avatarSize = getAvatarSize(size);
   const textSize = getAvatarText(size);
   const color = Colors[team.element.color];
@@ -26,6 +32,7 @@ const TeamAvatar = ({ team, size = SIZE.MEDIUM, disabled = false }: Props) => {
             ? "rounded-md"
             : "rounded-xl",
         avatarSize,
+        className,
       )}
       style={{
         backgroundImage: `linear-gradient(to bottom, ${color.primary}, ${color.dark})`,

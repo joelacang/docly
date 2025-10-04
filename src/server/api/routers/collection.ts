@@ -44,7 +44,7 @@ export const collectionRouter = createTRPCRouter({
 
         return results;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 
@@ -77,7 +77,7 @@ export const collectionRouter = createTRPCRouter({
 
         return result;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 });

@@ -116,13 +116,13 @@ model UserPreference {
   receiveEmails            Boolean  @default(true)
   receivePushNotifications Boolean  @default(true)
   showTips                 Boolean  @default(true)
-  currentWorkspaceId       String?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
-  lastVisitedWorkspace     String?
 
-  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentWorkspace Workspace? @relation(fields: [currentWorkspaceId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
 }
 
 enum ElementType {
@@ -243,13 +243,13 @@ model Workspace {
   elementId String  @unique
   element   Element @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
-  members               WorkspaceMembership[]
-  invitations           WorkspaceMembershipInvitation[]
-  folders               Folder[]
-  currentUserWorkspaces UserPreference[]
-  collections           Collection[]
-  favorites             Favorite[]
-  teams                 Team[]
+  members          WorkspaceMembership[]
+  invitations      WorkspaceMembershipInvitation[]
+  folders          Folder[]
+  collections      Collection[]
+  favorites        Favorite[]
+  teams            Team[]
+  lastTeamSelected UserPreference[]
 
   @@index([type])
 }
@@ -270,17 +270,20 @@ enum MembershipStatus {
 }
 
 model WorkspaceMembership {
-  id          String           @id @default(cuid())
-  workspaceId String
-  memberId    String
-  role        MembershipRole   @default(Member)
-  status      MembershipStatus @default(Pending)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  joinDate    DateTime?
+  id                 String           @id @default(cuid())
+  workspaceId        String
+  memberId           String
+  role               MembershipRole   @default(Member)
+  status             MembershipStatus @default(Pending)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  joinDate           DateTime?
+  lastTeamSelectedId String?
+  lastVisitedAt      DateTime?
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  member    User      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  member           User      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  lastTeamSelected Team?     @relation(fields: [lastTeamSelectedId], references: [id], onDelete: SetNull)
 
   @@unique([workspaceId, memberId])
   @@index([workspaceId, status])
@@ -314,7 +317,8 @@ model Team {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
-  members TeamMembership[]
+  members          TeamMembership[]
+  lastTeamSelected WorkspaceMembership[]
 
   @@index([workspaceId])
 }

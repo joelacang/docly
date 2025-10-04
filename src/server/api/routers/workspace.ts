@@ -1,5 +1,12 @@
-import { createElement } from "@/server/helper-functions/element";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  convertToElementPreview,
+  createElement,
+} from "@/server/helper-functions/element";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  workspaceReadProcedure,
+} from "../trpc";
 import {
   createWorkspaceSchema,
   type WorkspaceMembership,
@@ -23,6 +30,7 @@ import {
   WorkspaceMembershipPrismaSelection,
 } from "@/server/helper-functions/prisma";
 import { getWorkspaceAccess } from "@/utils";
+import { unAuthorized, unknownError } from "@/server/helper-functions";
 
 export const workspaceRouter = createTRPCRouter({
   //Mutations
@@ -75,7 +83,7 @@ export const workspaceRouter = createTRPCRouter({
       },
       select: WorkspaceMembershipPrismaSelection,
       orderBy: {
-        createdAt: "asc",
+        lastVisitedAt: "desc",
       },
     });
 
@@ -85,16 +93,8 @@ export const workspaceRouter = createTRPCRouter({
       return { ...membershipData, access: getWorkspaceAccess(membershipData) };
     });
 
-    const pref = await ctx.db.userPreference.findUnique({
-      where: { userId: ctx.session.user.id },
-      select: {
-        lastVisitedWorkspace: true,
-      },
-    });
-
     return {
       myWorkspaces,
-      lastWorkspaceVisited: pref?.lastVisitedWorkspace ?? null,
     };
   }),
 
@@ -157,10 +157,43 @@ export const workspaceRouter = createTRPCRouter({
         return {
           id: w.id,
           type: w.type,
-          element: w.element,
+          element: convertToElementPreview(w.element),
         };
       });
 
       return workspaces;
     }),
+
+  setLastWorkspaceVisited: workspaceReadProcedure.mutation(async ({ ctx }) => {
+    try {
+      if (!ctx.session.workspaceMembership.membership?.id) {
+        throw new TRPCError(
+          unAuthorized("You are not allowed to update this membership."),
+        );
+      }
+
+      const updateDetails = await ctx.db.workspaceMembership.update({
+        where: { id: ctx.session.workspaceMembership.membership.id },
+        data: {
+          lastVisitedAt: new Date(),
+        },
+        select: {
+          id: true,
+          lastVisitedAt: true,
+        },
+      });
+
+      return {
+        details: {
+          id: updateDetails.id,
+          lastVisitedAt: updateDetails.lastVisitedAt?.toISOString(),
+        },
+      };
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError(unknownError(error as TRPCError));
+    }
+  }),
 });

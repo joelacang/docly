@@ -12,42 +12,32 @@ import { useRouter } from "next/navigation";
 interface Props {
   workspace: WorkspacePreview;
   size?: SIZE;
-  disabled?: boolean;
   isCurrent?: boolean;
 }
 const WorkspaceAvatar = ({
   workspace,
   size = SIZE.MEDIUM,
-  disabled = false,
   isCurrent = false,
 }: Props) => {
   const avatarSize = getAvatarSize(size);
   const textSize = getAvatarText(size);
   const color = Colors[workspace.element.color];
-  const router = useRouter();
 
   return (
     <Hint tooltip={workspace.element.name} side="right">
-      <Button
+      <div
         className={cn(
           avatarSize,
-          "border-spacing-1.5 cursor-pointer overflow-hidden rounded-lg border-transparent transition-all duration-300 ease-in-out",
-          "hover:scale-110 hover:rounded-sm hover:shadow-lg hover:shadow-black/20",
-          "active:scale-95 active:shadow-inner",
+          "shrink-0 border-spacing-1.5 cursor-pointer overflow-hidden border-transparent transition-all duration-300 ease-in-out",
+          size === SIZE.MICRO ? "rounded-sm" : "rounded-lg",
+
           "transform-gpu", // Hardware acceleration for smoother animations
-          isCurrent &&
-            !disabled && [
-              "ring-offset-background ring-3 ring-blue-500 ring-offset-2",
-              "shadow-lg shadow-blue-500/20",
-              "rounded-sm",
-            ],
-          disabled && "pointer-events-none",
+          isCurrent && [
+            "ring-offset-background ring-3 ring-blue-500 ring-offset-2",
+            "shadow-lg shadow-blue-500/20",
+            "rounded-sm",
+          ],
         )}
-        variant="ghost"
-        size="icon"
-        onClick={() => {
-          router.push(`/workspace/${workspace.element.slug}`);
-        }}
       >
         {workspace.element.avatarUrl ? (
           <div className="relative aspect-square w-full transition-all duration-300">
@@ -63,7 +53,7 @@ const WorkspaceAvatar = ({
             <div
               className={cn(
                 "absolute inset-0 bg-black/0 transition-all duration-300 hover:bg-black/10",
-                isCurrent && !disabled && "bg-green-500/10",
+                isCurrent && "bg-green-500/10",
               )}
             />
           </div>
@@ -72,7 +62,7 @@ const WorkspaceAvatar = ({
             className={cn(
               "flex items-center justify-center transition-all duration-300",
               "hover:brightness-110",
-              isCurrent && !disabled && "brightness-110",
+              isCurrent && "brightness-110",
               avatarSize,
             )}
             style={{
@@ -90,7 +80,7 @@ const WorkspaceAvatar = ({
             </p>
           </div>
         )}
-      </Button>
+      </div>
     </Hint>
   );
 };

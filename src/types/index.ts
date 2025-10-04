@@ -18,6 +18,7 @@ export type MenuItem = {
   id: string;
   label: string;
   icon?: LucideIcon;
+  avatar?: React.ReactNode;
   color?: Color;
   hidden?: boolean;
   disabled?: boolean;
@@ -26,6 +27,7 @@ export type MenuItem = {
   subMenus?: MenuItem[];
   showDropdownButton?: boolean;
   mode?: "default" | "destructive";
+  highlighted?: boolean;
 };
 
 export enum SIZE {

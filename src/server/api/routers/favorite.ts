@@ -102,7 +102,7 @@ export const favoriteRouter = createTRPCRouter({
 
         return result;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 
@@ -136,7 +136,7 @@ export const favoriteRouter = createTRPCRouter({
 
         return result;
       } catch (error) {
-        throw new TRPCError(unknownError(error as Error));
+        throw new TRPCError(unknownError(error as TRPCError));
       }
     }),
 

@@ -1,5 +1,5 @@
 import { Users2Icon } from "lucide-react";
-import SidebarSection from "./sidebar-section";
+import SidebarSection from "../sidebar-section";
 import { useMyTeams } from "@/providers/team-provider";
 import TeamAvatar from "@/features/teams/components/team-avatar";
 import { SIZE } from "@/types";

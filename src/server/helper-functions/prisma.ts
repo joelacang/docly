@@ -10,6 +10,19 @@ export const ElementPreviewPrismaSelection = {
   type: true,
   color: true,
   description: true,
+  avatarUrl: true,
+  createdBy: {
+    select: UserPrismaSelection,
+  },
+  owners: {
+    select: {
+      owner: {
+        select: UserPrismaSelection,
+      },
+    },
+  },
+  createdAt: true,
+  updatedAt: true,
 };
 
 const elementPreviewSection = Prisma.validator()(ElementPreviewPrismaSelection);
@@ -34,7 +47,7 @@ const validWorkspaceMembershipPreviewSelection = Prisma.validator()(
 );
 
 export type ElementPreviewSelected = Prisma.ElementGetPayload<{
-  select: typeof elementPreviewSection;
+  select: typeof ElementPreviewPrismaSelection;
 }>;
 
 export type WorkspaceMembershipSelected = Prisma.WorkspaceMembershipGetPayload<{

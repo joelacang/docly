@@ -21,9 +21,13 @@ import toast from "react-hot-toast";
 
 type WorkspaceContext = {
   myWorkspaces: WorkspaceMembership[];
-  onClear: () => void;
   currentWorkspace: WorkspaceMembership | null;
+  baseUrl: string;
+  isSwitching: boolean;
+  isWorkspaceSwitched: boolean;
   setCurrentWorkspace: (workspace: WorkspaceMembership | null) => void;
+  setIsWorkspaceSwitched: (status: boolean) => void;
+  onSwitchWorkspace: (workspace: WorkspaceMembership) => void;
 };
 
 const WorkspaceContext = createContext<WorkspaceContext | null>(null);
@@ -31,8 +35,9 @@ const WorkspaceContext = createContext<WorkspaceContext | null>(null);
 export const useMyWorkspaces = () => {
   const ctx = useContext(WorkspaceContext);
 
-  if (!ctx)
+  if (!ctx) {
     throw new Error("useMyWorkspaces must be used within WorkspaceProvider");
+  }
 
   return ctx;
 };
@@ -44,74 +49,126 @@ interface Props {
 export const WorkspaceProvider = ({ children }: Props) => {
   const [currentWorkspace, setCurrentWorkspace] =
     useState<WorkspaceMembership | null>(null);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [isWorkspaceSwitched, setIsWorkspaceSwitched] = useState(false);
+
   const { workspaceSlug } = useParams();
   const router = useRouter();
 
-  const onClear = useCallback(() => {
-    setCurrentWorkspace(null);
-  }, []);
-
   const { data, isLoading, isError, error } =
     api.workspace.getMyWorkspaces.useQuery();
+  const { mutate: setLastWorkspaceVisited } =
+    api.workspace.setLastWorkspaceVisited.useMutation();
 
-  const contextValue = useMemo(
+  const onSwitchWorkspace = useCallback(
+    (workspace: WorkspaceMembership) => {
+      if (isSwitching) return;
+
+      const switchToast = toast.custom(() => (
+        <LoadingToastMessage message="Switching Workspace..." />
+      ));
+
+      setIsSwitching(true);
+
+      setLastWorkspaceVisited(
+        { workspaceId: workspace.workspace.id },
+        {
+          onSuccess: () => {
+            toast.custom(() => (
+              <ToastMessage
+                title="Workspace Switched"
+                message={`Workspace has been switched to: ${workspace.workspace.element.name}`}
+                mode={Mode.SUCCESS}
+              />
+            ));
+            router.push(`/workspace/${workspace.workspace.element.slug}`);
+            setCurrentWorkspace(workspace);
+            setIsWorkspaceSwitched(true);
+          },
+          onError: (error) => {
+            toast.custom(() => (
+              <ToastMessage
+                title="Error switching workspace."
+                message={error.message}
+                mode={Mode.ERROR}
+              />
+            ));
+          },
+          onSettled: () => {
+            setIsSwitching(false);
+            toast.dismiss(switchToast);
+          },
+        },
+      );
+    },
+    [
+      isSwitching,
+      router,
+      setLastWorkspaceVisited,
+      setCurrentWorkspace,
+      setIsSwitching,
+    ],
+  );
+
+  const baseUrl = currentWorkspace
+    ? `/workspace/${currentWorkspace.workspace.element.slug}`
+    : "/";
+
+  const contextValue: WorkspaceContext = useMemo(
     () => ({
       myWorkspaces: data?.myWorkspaces ?? [],
-      onClear,
+      baseUrl,
       currentWorkspace,
+      isSwitching,
+      isWorkspaceSwitched,
+      setIsWorkspaceSwitched,
       setCurrentWorkspace,
+      onSwitchWorkspace,
     }),
-    [data?.myWorkspaces, onClear, currentWorkspace],
+    [
+      data?.myWorkspaces,
+      currentWorkspace,
+      onSwitchWorkspace,
+      baseUrl,
+      isSwitching,
+      isWorkspaceSwitched,
+      setIsWorkspaceSwitched,
+    ],
   );
 
   useEffect(() => {
     if (isLoading || !data?.myWorkspaces) return;
 
-    let timeoutId: ReturnType<typeof setTimeout>;
-
     if (workspaceSlug) {
-      const foundWorkspace = data.myWorkspaces.find(
+      const found = data.myWorkspaces.find(
         (w) => w.workspace.element.slug === workspaceSlug,
       );
 
       if (
-        foundWorkspace &&
-        foundWorkspace.workspace.element.slug !==
+        found &&
+        found.workspace.element.slug !==
           currentWorkspace?.workspace.element.slug
       ) {
-        const switchToast = toast.custom(
-          () => (
-            <LoadingToastMessage
-              message={`Switching Workspace to ${foundWorkspace.workspace.element.name}...`}
-            />
-          ),
-          { duration: 300 },
-        );
-
-        timeoutId = setTimeout(() => {
-          setCurrentWorkspace(foundWorkspace ?? null);
-          toast.custom(() => (
-            <ToastMessage
-              title="Workspace Switched."
-              message={`Workspace is now switched to ${foundWorkspace.workspace.element.name}`}
-              mode={Mode.SUCCESS}
-            />
-          ));
-        }, 800);
+        setCurrentWorkspace(found);
+        setLastWorkspaceVisited({ workspaceId: found.workspace.id });
       }
-
-      return () => clearTimeout(timeoutId);
-    }
-
-    const targetSlug =
-      data.lastWorkspaceVisited ?? data.myWorkspaces[0]?.workspace.element.slug;
-
-    if (targetSlug) {
-      router.push(`/workspace/${targetSlug}`);
     } else {
-      router.push("/no-workspace"); // ✅ Fixed: removed "-found"
+      const targetSlug = data.myWorkspaces[0]?.workspace.element.slug;
+
+      if (targetSlug) {
+        router.push(`/workspace/${targetSlug}`);
+      } else {
+        router.push("/no-workspace");
+      }
     }
-  }, [data, workspaceSlug, isLoading, router, currentWorkspace, toast]);
+  }, [
+    workspaceSlug,
+    isLoading,
+    data,
+    router,
+    currentWorkspace,
+    setLastWorkspaceVisited,
+  ]);
 
   if (isLoading) {
     return <LoadingMessage message="Loading Your Workspaces..." />;

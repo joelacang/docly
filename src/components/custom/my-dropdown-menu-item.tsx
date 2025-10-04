@@ -43,10 +43,13 @@ const MyDropdownMenuItem = ({ item, color = "default" }: Props) => {
         }
       >
         <div className="flex flex-row items-center justify-start gap-2">
+          {item.avatar}
           {item.icon && (
             <item.icon className="hover:text-accent-foreground !size-5" />
           )}
-          <DropdownMenuLabel>{item.label}</DropdownMenuLabel>
+          <DropdownMenuLabel className="line-clamp-1 w-full leading-relaxed">
+            {item.label}
+          </DropdownMenuLabel>
         </div>
       </DropdownMenuItem>
       {item.hasSeparator && <DropdownMenuSeparator />}

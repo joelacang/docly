@@ -4,6 +4,7 @@ import {
   type Prisma,
   MembershipRole,
   MembershipStatus,
+  ElementStatus,
 } from "@prisma/client";
 import { db } from "../db";
 import { getWorkspaceAccess } from "@/utils";
@@ -12,6 +13,8 @@ import {
   WorkspaceMembershipPrismaSelection,
   type WorkspaceMembershipSelected,
 } from "./prisma";
+import { convertToElementPreview } from "./element";
+import { El_Messiri } from "next/font/google";
 
 export async function createWorkspace({
   elementId,
@@ -52,8 +55,13 @@ export async function createWorkspace({
     },
   });
 
+  const element = convertToElementPreview(workspace.element);
+
   const workspaceMembership: WorkspaceMembership = {
-    workspace,
+    workspace: {
+      ...workspace,
+      element,
+    },
     membership,
   };
 
@@ -80,11 +88,13 @@ export async function getWorkspaceMembership({
 
   if (!data) return null;
 
+  const element = convertToElementPreview(data.workspace.element);
+
   const details: WorkspaceMembership = {
     workspace: {
       id: data.workspace.id,
       type: data.workspace.type,
-      element: data.workspace.element,
+      element,
     },
     membership: {
       id: data.id,
@@ -100,9 +110,14 @@ export function convertToWorkspaceMembership(
   data: WorkspaceMembershipSelected,
 ): WorkspaceMembership {
   const { workspace, ...others } = data;
+  const { element: elementSelection, ...workspaceFields } = workspace;
 
+  const element = convertToElementPreview(elementSelection);
   const result = {
-    workspace,
+    workspace: {
+      ...workspaceFields,
+      element,
+    },
     membership: others,
   };
 
@@ -110,4 +125,28 @@ export function convertToWorkspaceMembership(
     ...result,
     access: getWorkspaceAccess(result),
   };
+}
+
+/**
+ * Access rules for workspace-level items (e.g., folders, global resources).
+ */
+export function isWorkspaceItemAccessible(
+  status: ElementStatus,
+  access: Access,
+): boolean {
+  switch (status) {
+    case ElementStatus.Pending:
+    case ElementStatus.Restricted:
+      return access >= Access.ADMIN;
+
+    case ElementStatus.Active:
+      return access >= Access.READ_ONLY;
+
+    case ElementStatus.Deleted:
+    case ElementStatus.Draft:
+      return access === Access.OWNER;
+
+    default:
+      return false;
+  }
 }

@@ -4,7 +4,7 @@ import Dock from "@/features/dock/components/dock";
 import Navbar from "@/features/navbar/components/navbar";
 import NavbarContent from "@/features/navbar/components/navbar-content";
 import { useWorkspaceSidebar } from "@/features/workspaces/hooks/use-workspace-sidebar";
-import WorkspaceSidebar from "@/features/workspaces/components/sidebar/workspace-sidebar";
+import TeamSidebar from "@/features/teams/components/sidebar/team-sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
@@ -15,9 +15,9 @@ import TeamDialogProvider from "@/providers/team-dialog-provider";
 interface Props {
   children: React.ReactNode;
 }
+
 const SiteLayout = ({ children }: Props) => {
   const { open } = useWorkspaceSidebar();
-  const isMobile = useIsMobile();
   const { currentWorkspace } = useMyWorkspaces();
 
   return (
@@ -31,7 +31,7 @@ const SiteLayout = ({ children }: Props) => {
               "hidden overflow-hidden transition-all duration-300 ease-in-out lg:block",
             )}
           >
-            <WorkspaceSidebar />
+            <TeamSidebar />
           </div>
 
           <div className="bg-background flex w-full flex-1 flex-col items-center justify-start">
@@ -39,7 +39,7 @@ const SiteLayout = ({ children }: Props) => {
               <NavbarContent />
             </Navbar>
             <div className="flex h-[calc(100vh-40px)] w-full flex-col items-center justify-center overflow-y-auto">
-              <div className="container flex h-full w-full flex-col">
+              <div className="container flex h-full w-full flex-col px-4 py-6 lg:px-8">
                 {children}
               </div>
             </div>

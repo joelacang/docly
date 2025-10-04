@@ -1,6 +1,7 @@
 "use client";
 
 import CollectionFormDialog from "@/features/collections/components/collection-form-dialog";
+import ConfirmAlert from "@/features/confirmation/components/confirmation-alert";
 import FolderFormDialog from "@/features/folders/components/folder-form-dialog";
 import JoinWorkspaceDialog from "@/features/membership/components/join-workspace/join-workspace-dialog";
 import TeamFormDialog from "@/features/teams/components/team-form-dialog";
@@ -21,6 +22,7 @@ const DialogProvider = () => {
       <FolderFormDialog />
       <CollectionFormDialog />
       <TeamFormDialog />
+      <ConfirmAlert />
     </>
   );
 };

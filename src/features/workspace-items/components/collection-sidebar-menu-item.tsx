@@ -5,7 +5,7 @@ import type { CollectionPreview } from "@/types/collection";
 import { COLLECTION_DISPLAYS } from "@/utils/elements";
 import { useState } from "react";
 import SidebarCollectionDropdownMenu from "@/features/sidebar/components/sidebar-collection-dropdown-menu";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
@@ -15,16 +15,18 @@ interface Props {
 const CollectionSidebarMenuItem = ({ item }: Props) => {
   const collectionDisplay = COLLECTION_DISPLAYS[item.type];
   const router = useRouter();
-  const { currentWorkspace } = useMyWorkspaces();
+  const { baseUrl } = useMyWorkspaces();
+  const pathname = usePathname();
+
   const menuItem: MenuItem = {
     id: item.id,
     label: `${item.element.name}`,
     icon: collectionDisplay.icon,
     color: item.element.color,
+    highlighted:
+      pathname === `${baseUrl}/collections/${item.type}/${item.element.slug}`,
     action: () => {
-      router.push(
-        `/workspace/${currentWorkspace?.workspace.element.slug}/${item.type}/${item.element.slug}`,
-      );
+      router.push(`${baseUrl}/collections/${item.type}/${item.element.slug}`);
     },
   };
   const [isHighlighted, setIsHighlighted] = useState(false);
@@ -42,7 +44,10 @@ const CollectionSidebarMenuItem = ({ item }: Props) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <SidebarMenuButton item={menuItem} isHighlighted={isHighlighted} />
+      <SidebarMenuButton
+        item={menuItem}
+        highlighted={isHighlighted || menuItem.highlighted}
+      />
       <div className={cn(isHighlighted ? "opacity-100" : "opacity-0")}>
         <SidebarCollectionDropdownMenu
           open={dropdownOpen}

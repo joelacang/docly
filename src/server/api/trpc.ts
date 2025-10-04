@@ -14,7 +14,10 @@ import { db } from "@/server/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Z } from "node_modules/better-auth/dist/shared/better-auth.B2AIpsP8";
-import { getWorkspaceMembership } from "../helper-functions/workspace";
+import {
+  getWorkspaceMembership,
+  isWorkspaceItemAccessible,
+} from "../helper-functions/workspace";
 import { getWorkspaceAccess } from "@/utils";
 import { Access } from "@/types/workspace";
 import { unAuthorized } from "../helper-functions";
@@ -29,8 +32,10 @@ import {
   convertToMyTeamMembership,
   convertToTeamMembershipDetails,
   convertToTeamSummary,
+  isTeamItemAccessible,
 } from "../helper-functions/team";
 import { getTeamAccess, TeamAccess } from "@/types/team";
+import { unauthorized } from "next/navigation";
 
 /**
  * 1. CONTEXT
@@ -178,12 +183,29 @@ export const workspaceReadProcedure = protectedProcedure
         unAuthorized("You don't have any access to this workspace"),
       );
 
+    const isAccessible = details.access
+      ? isWorkspaceItemAccessible(
+          details.workspace.element.status,
+          details.access,
+        )
+      : false;
+
+    if (!isAccessible)
+      throw new TRPCError(
+        unAuthorized(
+          `This workspace is not accessible. It may be restricted, deleted, or your role is insufficient. `,
+        ),
+      );
+
+    const workspaceAccess = getWorkspaceAccess(details);
+
     return next({
       ctx: {
         ...ctx,
         session: {
           ...ctx.session,
           workspaceMembership: details,
+          access: workspaceAccess,
         },
       },
     });
@@ -191,9 +213,7 @@ export const workspaceReadProcedure = protectedProcedure
 
 export const workspaceEditProcedure = workspaceReadProcedure.use(
   ({ ctx, next }) => {
-    const membership = ctx.session.workspaceMembership;
-
-    const access = getWorkspaceAccess(membership);
+    const access = ctx.session.access;
 
     const canEdit = access > Access.READ_ONLY;
 
@@ -210,9 +230,7 @@ export const workspaceEditProcedure = workspaceReadProcedure.use(
 
 export const workspaceAdminProcedure = workspaceReadProcedure.use(
   ({ ctx, next }) => {
-    const membership = ctx.session.workspaceMembership;
-
-    const access = getWorkspaceAccess(membership);
+    const access = ctx.session.access;
 
     const isAdmin = access >= Access.ADMIN;
 
@@ -230,9 +248,6 @@ export const workspaceAdminProcedure = workspaceReadProcedure.use(
 export const teamReadProcedure = workspaceReadProcedure
   .input(z.object({ teamId: z.cuid() }))
   .use(async ({ ctx, input, next }) => {
-    const workspaceAccess = ctx.session.workspaceMembership.access;
-    const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
-
     const teamData = await ctx.db.team.findUnique({
       where: { id: input.teamId },
       select: {
@@ -262,9 +277,29 @@ export const teamReadProcedure = workspaceReadProcedure
       },
     });
 
-    if (!teamMembershipData && !isWorkspaceAdmin)
+    const teamAccess = getTeamAccess(
+      teamMembershipData?.role,
+      ctx.session.workspaceMembership.membership?.role,
+    );
+
+    if (teamAccess === TeamAccess.NO_ACCESS) {
       throw new TRPCError(
-        unAuthorized("You don't have read access on this team."),
+        unAuthorized("You don't have any access to this team."),
+      );
+    }
+    // Check if the team item is isAccessible.
+    const workspaceAccess = ctx.session.workspaceMembership.access;
+
+    const isAccessible =
+      teamMembershipData && workspaceAccess
+        ? isTeamItemAccessible(team.element.status, teamAccess, workspaceAccess)
+        : false;
+
+    if (!isAccessible)
+      throw new TRPCError(
+        unAuthorized(
+          "This team is not accessible. It may be restricted, deleted, or your role is insufficient.",
+        ),
       );
 
     const teamMembership = teamMembershipData
@@ -279,6 +314,7 @@ export const teamReadProcedure = workspaceReadProcedure
           team: {
             ...team,
             membership: teamMembership,
+            access: teamAccess,
           },
         },
       },
@@ -288,13 +324,9 @@ export const teamReadProcedure = workspaceReadProcedure
 export const teamAdminProcedure = teamReadProcedure.use(
   async ({ ctx, next }) => {
     const workspaceAccess = ctx.session.workspaceMembership.access;
-
     const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
 
-    const role = ctx.session.team.membership?.role;
-
-    const teamAccess = role ? getTeamAccess(role) : TeamAccess.NO_ACCESS;
-
+    const teamAccess = ctx.session.team.access;
     const isTeamAdmin = teamAccess >= TeamAccess.ADMIN;
 
     if (!isTeamAdmin && !isWorkspaceAdmin) {
@@ -310,13 +342,9 @@ export const teamAdminProcedure = teamReadProcedure.use(
 export const teamLeaderProcedure = teamReadProcedure.use(
   async ({ ctx, next }) => {
     const workspaceAccess = ctx.session.workspaceMembership.access;
-
     const isWorkspaceAdmin = workspaceAccess && workspaceAccess >= Access.ADMIN;
 
-    const role = ctx.session.team.membership?.role;
-
-    const teamAccess = role ? getTeamAccess(role) : TeamAccess.NO_ACCESS;
-
+    const teamAccess = ctx.session.team.access;
     const isTeamLeader = teamAccess === TeamAccess.LEADER;
 
     if (!isTeamLeader && !isWorkspaceAdmin) {

@@ -1,8 +1,9 @@
-import type {
-  MyTeamMembership,
-  TeamMemberProfile,
-  TeamMembershipDetails,
-  TeamSummary,
+import {
+  TeamAccess,
+  type MyTeamMembership,
+  type TeamMemberProfile,
+  type TeamMembershipDetails,
+  type TeamSummary,
 } from "@/types/team";
 import type {
   MyTeamMembershipSelected,
@@ -10,12 +11,17 @@ import type {
   TeamMembershipDetailsSelected,
   TeamSummarySelected,
 } from "./prisma";
+import { ElementStatus } from "@prisma/client";
+import { Access } from "@/types/workspace";
+import { convertToElementPreview } from "./element";
 
 export function convertToTeamSummary(data: TeamSummarySelected) {
-  const { _count, createdAt, ...teamFields } = data;
+  const { _count, createdAt, element, ...teamFields } = data;
 
+  const updatedElement = convertToElementPreview(element);
   return {
     ...teamFields,
+    element: updatedElement,
     membersCount: _count.members,
     creationDate: createdAt,
   } as TeamSummary;
@@ -54,4 +60,35 @@ export function convertToMyTeamMembership(data: MyTeamMembershipSelected) {
     team: teamSummary,
     membership,
   } as MyTeamMembership;
+}
+
+/**
+ * Access rules for team-scoped items. Requires either:
+ * - Team-level access (e.g. LEADER, ADMIN), or
+ * - Workspace-level fallback access (e.g. ADMIN)
+ */
+export function isTeamItemAccessible(
+  status: ElementStatus,
+  teamAccess: TeamAccess = TeamAccess.NO_ACCESS,
+  workspaceAccess: Access,
+): boolean {
+  const isWsAdmin = workspaceAccess >= Access.ADMIN;
+
+  switch (status) {
+    case ElementStatus.Pending:
+    case ElementStatus.Draft:
+      return isWsAdmin;
+
+    case ElementStatus.Active:
+      return teamAccess >= TeamAccess.READ_ONLY || isWsAdmin;
+
+    case ElementStatus.Restricted:
+      return teamAccess >= TeamAccess.ADMIN || isWsAdmin;
+
+    case ElementStatus.Deleted:
+      return teamAccess >= TeamAccess.LEADER || isWsAdmin;
+
+    default:
+      return false;
+  }
 }

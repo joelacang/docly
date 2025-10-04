@@ -20,7 +20,6 @@ type ConfirmDialogState = {
   error: string | null;
   isError: boolean;
   isPending: boolean;
-  isCompleted: boolean;
   onOpen: (details: ConfirmAlertFormType) => void;
   onClose: () => void;
   onValidate: (code?: string | null) => boolean;
@@ -38,7 +37,6 @@ export const useConfirmationAlert = create<ConfirmDialogState>((set) => ({
   error: null,
   isError: false,
   isPending: false,
-  isCompleted: false,
   onOpen: (confirmDetails) => {
     const confirmCode = confirmDetails.enableConfirmation
       ? Math.floor(100000 + Math.random() * 900000).toString()
@@ -50,7 +48,6 @@ export const useConfirmationAlert = create<ConfirmDialogState>((set) => ({
       error: null,
       isError: false,
       isPending: false,
-      isCompleted: false,
     });
   },
   onClose: () =>
@@ -61,7 +58,6 @@ export const useConfirmationAlert = create<ConfirmDialogState>((set) => ({
       isError: false,
       isPending: false,
       confirmCode: null,
-      isCompleted: false,
     }),
   onValidate: (code) => {
     const state = useConfirmationAlert.getState();
@@ -98,13 +94,11 @@ export const useConfirmationAlert = create<ConfirmDialogState>((set) => ({
   onCompleted: () =>
     set({
       isPending: false,
-      isCompleted: true,
       open: false,
     }),
   onReset: () =>
     set({
       isPending: false,
-      isCompleted: false,
       open: false,
       confirmDetails: null,
       error: null,

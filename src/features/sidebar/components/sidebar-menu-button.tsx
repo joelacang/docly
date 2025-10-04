@@ -8,13 +8,13 @@ import { useTheme } from "next-themes";
 
 interface Props {
   item: MenuItem;
-  isHighlighted?: boolean;
+  highlighted?: boolean;
   open?: boolean;
   unlocked?: boolean;
 }
 const SidebarMenuButton = ({
   item,
-  isHighlighted = false,
+  highlighted = false,
   open,
   unlocked = false,
 }: Props) => {
@@ -36,13 +36,14 @@ const SidebarMenuButton = ({
       <div
         className={cn(
           "flex h-9 flex-1 cursor-pointer items-center justify-between rounded-md py-0.5 pr-1 pl-2 transition-colors",
-          isHighlighted &&
+          highlighted &&
             "bg-[var(--ws-primary)] text-white dark:bg-[var(--ws-darkest)]",
-          "hover:bg-[var(--ws-primary)] hover:text-white hover:dark:bg-[var(--ws-darkest)]",
+          "hover:bg-[var(--ws-primary)] hover:text-white active:bg-[_var(--ws-darkest)] hover:dark:bg-[var(--ws-darkest)] active:dark:bg-[_var(--ws-primary)]",
         )}
         style={
           {
             "--ws-primary": color.primary,
+            "--ws-light": color.light,
             "--ws-darkest": color.darkest,
           } as React.CSSProperties
         }
@@ -55,6 +56,7 @@ const SidebarMenuButton = ({
                 item.color
                   ? "text-[_var(--col-primary)]"
                   : "text-foreground group-hover:text-white",
+                highlighted && "text-white",
               )}
               style={
                 {
@@ -67,7 +69,9 @@ const SidebarMenuButton = ({
                 item.color
                   ? isDarkMode
                     ? iconColor.darkest
-                    : iconColor.lightest
+                    : highlighted
+                      ? iconColor.primary
+                      : iconColor.lightest
                   : "none"
               }
             />

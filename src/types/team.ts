@@ -1,6 +1,7 @@
 import z from "zod";
 import { createElementBaseSchema, type ElementPreview } from "./element";
 import {
+  type MembershipRole,
   type MembershipStatus,
   TeamPrivacy,
   TeamRole,
@@ -90,14 +91,25 @@ export type TeamMemberFormData = {
   role: TeamRole;
 };
 
-export function getTeamAccess(role: TeamRole): TeamAccess {
-  switch (role) {
-    case "Leader":
+export function getTeamAccess(
+  role?: TeamRole,
+  workspaceRole?: MembershipRole,
+): TeamAccess {
+  if (role) {
+    switch (role) {
+      case "Leader":
+        return TeamAccess.LEADER;
+      case "Officer":
+        return TeamAccess.ADMIN;
+      case "Member":
+        return TeamAccess.READ_ONLY;
+    }
+  }
+
+  switch (workspaceRole) {
+    case "Owner":
+    case "Admin":
       return TeamAccess.LEADER;
-    case "Officer":
-      return TeamAccess.ADMIN;
-    case "Member":
-      return TeamAccess.READ_ONLY;
     default:
       return TeamAccess.NO_ACCESS;
   }

@@ -21,7 +21,7 @@ const UserAvatar = ({ user, size = SIZE.MEDIUM }: Props) => {
           currentTextSize,
         )}
       >
-        {user.name.charAt(0).toUpperCase()}
+        {user.name ? user.name.charAt(0).toUpperCase() : "U"}
       </AvatarFallback>
     </Avatar>
   );

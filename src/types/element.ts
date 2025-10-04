@@ -34,6 +34,10 @@ export type ElementPreview = {
   type: ElementType;
   color: Color;
   avatarUrl?: string | null;
+  createdBy?: User | null;
+  owners: User[];
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Display = {

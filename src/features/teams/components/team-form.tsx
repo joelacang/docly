@@ -14,6 +14,9 @@ import { useState } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import MemberSearch from "@/features/search/components/member-search";
 import type { User } from "@/types/user";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   workspaceId: string;
@@ -28,6 +31,8 @@ const TeamForm = ({ workspaceId }: Props) => {
   const [leaders, setLeaders] = useState<SearchOption<User>[]>([]);
   const [members, setMembers] = useState<SearchOption<User>[]>([]);
   const [officers, setOfficers] = useState<SearchOption<User>[]>([]);
+  const router = useRouter();
+  const { baseUrl } = useMyWorkspaces();
 
   const fields: FormFieldComponent<typeof createTeamSchema>[] = [
     {
@@ -162,12 +167,27 @@ const TeamForm = ({ workspaceId }: Props) => {
 
     createTeam(values, {
       onSuccess: (response) => {
+        const newMembership = response.members.find(
+          (member) => member.member.id === loggedUser.id,
+        );
+
         toast.custom(() => (
           <ToastMessage
             title="Created Team"
             message={`The team ${response?.team.element.name} has been created successfully.`}
             mode={Mode.SUCCESS}
-          />
+          >
+            {newMembership && (
+              <Button
+                variant="blue"
+                onClick={() =>
+                  router.push(`${baseUrl}/team/${response.team.element.slug}`)
+                }
+              >
+                Go To Team
+              </Button>
+            )}
+          </ToastMessage>
         ));
 
         apiUtils.team.getTeams.setData({ workspaceId }, (prev) => {
@@ -179,24 +199,27 @@ const TeamForm = ({ workspaceId }: Props) => {
         });
 
         apiUtils.team.getMyTeams.setData({ workspaceId }, (prev) => {
-          if (!prev) return [];
+          if (!prev)
+            return {
+              myTeams: [],
+              lastTeamSelected: null,
+            };
 
           if (!response) return prev;
 
-          const profile = response.members?.find(
-            (member) => member.member.id === loggedUser.id,
-          );
-
-          if (profile) {
+          if (newMembership) {
             const myUpdatedTeams = [
-              ...prev,
+              ...prev.myTeams,
               {
                 team: response.team,
-                membership: profile.membership,
+                membership: newMembership.membership,
               } satisfies MyTeamMembership,
             ];
 
-            return myUpdatedTeams;
+            return {
+              ...prev,
+              myTeams: myUpdatedTeams,
+            };
           }
 
           return prev;

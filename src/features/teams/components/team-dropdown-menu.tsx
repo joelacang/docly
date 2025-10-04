@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
@@ -16,6 +17,7 @@ import {
 
 import {
   EyeIcon,
+  HelpCircleIcon,
   MoreHorizontalIcon,
   PencilIcon,
   TrashIcon,
@@ -24,13 +26,16 @@ import {
 import { useAddTeamMembersDialog } from "../hooks/use-add-team-members-dialog";
 import { useMyTeams } from "@/providers/team-provider";
 import { Access } from "@/types/workspace";
+import { useConfirmationAlert } from "@/features/confirmation/hooks/use-confirmation-alert";
+import TeamAvatar from "./team-avatar";
 
 interface Props {
   team: TeamSummary;
 }
 
 const TeamDropdownMenu = ({ team }: Props) => {
-  const { myTeams } = useMyTeams();
+  const { onOpen } = useConfirmationAlert();
+  const { myTeams, currentTeam } = useMyTeams();
   const myMembership = myTeams.find((t) => t.team.id === team.id);
   const myTeamAccess = myMembership
     ? getTeamAccess(myMembership.membership.role)
@@ -39,6 +44,8 @@ const TeamDropdownMenu = ({ team }: Props) => {
   const myWorkspaceAccess = currentWorkspace?.access ?? Access.NO_ACCESS;
 
   const { onOpen: openAddTeamMemberDialog } = useAddTeamMembersDialog();
+  const isTeamAdmin =
+    myTeamAccess >= TeamAccess.ADMIN || myWorkspaceAccess >= Access.ADMIN;
   const items: MenuItem[] = [
     {
       id: "view-team",
@@ -49,8 +56,7 @@ const TeamDropdownMenu = ({ team }: Props) => {
       id: "add-team-member",
       label: "Add Team Member",
       icon: UserPlusIcon,
-      hidden:
-        myTeamAccess < TeamAccess.ADMIN && myWorkspaceAccess < Access.ADMIN,
+      hidden: !isTeamAdmin,
       action: () => {
         openAddTeamMemberDialog(team);
       },
@@ -69,6 +75,19 @@ const TeamDropdownMenu = ({ team }: Props) => {
       mode: "destructive",
       hidden:
         myTeamAccess !== TeamAccess.LEADER && myWorkspaceAccess < Access.ADMIN,
+      action: () => {
+        onOpen({
+          title: `Are you sure?`,
+          message: `Are you sure you want to delete ${team.element.name}? This action will remove all member information and related items, making them no longer accessible.`,
+          icon: HelpCircleIcon,
+          mode: "destructive",
+          enableConfirmation: true,
+          action: () => {
+            alert(`Confirm clicked`);
+          },
+          actionLabel: "Delete",
+        });
+      },
     },
   ];
   return (

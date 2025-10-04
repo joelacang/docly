@@ -7,6 +7,8 @@ import type { FolderPreview } from "@/types/folder";
 import { ELEMENT_DISPLAYS } from "@/utils/elements";
 import { useState } from "react";
 import { FolderIcon, FolderOpenIcon } from "lucide-react";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
+import { usePathname } from "next/navigation";
 
 interface Props {
   item: FolderPreview;
@@ -15,11 +17,15 @@ interface Props {
 }
 
 const FolderSidebarMenuItem = ({ item, open, unlocked = false }: Props) => {
+  const { baseUrl } = useMyWorkspaces();
+  const pathname = usePathname();
+
   const menuItem: MenuItem = {
     id: item.id,
     label: `${item.element.name}`,
     icon: open ? FolderOpenIcon : FolderIcon,
     color: item.element.color,
+    highlighted: pathname === `${baseUrl}/folders/${item.element.slug}`,
   };
   const [isHighlighted, setIsHighlighted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -38,7 +44,7 @@ const FolderSidebarMenuItem = ({ item, open, unlocked = false }: Props) => {
     >
       <SidebarMenuButton
         item={menuItem}
-        isHighlighted={isHighlighted}
+        highlighted={isHighlighted}
         open={open}
         unlocked={unlocked}
       />
