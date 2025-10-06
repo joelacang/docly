@@ -1,24 +1,16 @@
 import MyDropdownMenuItem from "@/components/custom/my-dropdown-menu-item";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import type { MenuItem } from "@/types";
-import {
-  getTeamAccess,
-  TeamAccess,
-  type TeamMembershipDetails,
-  type TeamSummary,
-} from "@/types/team";
+import { getTeamAccess, TeamAccess, type TeamSummary } from "@/types/team";
 
 import {
   EyeIcon,
   HelpCircleIcon,
-  MoreHorizontalIcon,
   PencilIcon,
   TrashIcon,
   UserPlusIcon,
@@ -27,15 +19,15 @@ import { useAddTeamMembersDialog } from "../hooks/use-add-team-members-dialog";
 import { useMyTeams } from "@/providers/team-provider";
 import { Access } from "@/types/workspace";
 import { useConfirmationAlert } from "@/features/confirmation/hooks/use-confirmation-alert";
-import TeamAvatar from "./team-avatar";
 
 interface Props {
   team: TeamSummary;
+  children: React.ReactNode;
 }
 
-const TeamDropdownMenu = ({ team }: Props) => {
+const TeamDropdownMenu = ({ team, children }: Props) => {
   const { onOpen } = useConfirmationAlert();
-  const { myTeams, currentTeam } = useMyTeams();
+  const { myTeams } = useMyTeams();
   const myMembership = myTeams.find((t) => t.team.id === team.id);
   const myTeamAccess = myMembership
     ? getTeamAccess(myMembership.membership.role)
@@ -92,11 +84,7 @@ const TeamDropdownMenu = ({ team }: Props) => {
   ];
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="" variant="ghost" size="icon">
-          <MoreHorizontalIcon />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="mx-4 w-64">
         {items.map((item) => (
           <MyDropdownMenuItem key={item.id} item={item} color="workspace" />

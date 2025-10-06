@@ -12,7 +12,7 @@ import {
 } from "react";
 import toast from "react-hot-toast";
 import type { MyTeamMembership } from "@/types/team";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useMyWorkspaces } from "./workspace-provider";
 import ToastMessage from "@/components/custom/toast-message";
 import LoadingToastMessage from "@/components/custom/loading-toast-message";
@@ -23,7 +23,11 @@ type TeamContext = {
   currentTeam: MyTeamMembership | null;
   baseTeamUrl: string;
   isSwitchingTeam: boolean;
-  onSwitchTeam: (team: MyTeamMembership) => void;
+  onSwitchTeam: (
+    team: MyTeamMembership,
+    showToast?: boolean,
+    push?: boolean,
+  ) => void;
   onSwitchDefaultTeam: () => void;
   onClearTeam: () => void;
 };
@@ -53,9 +57,15 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
 
   const [currentTeam, setCurrentTeam] = useState<MyTeamMembership | null>(null);
   const [isSwitchingTeam, setIsSwitchingTeam] = useState(false);
+  const pathname = usePathname();
 
-  const { baseUrl, isWorkspaceSwitched, setIsWorkspaceSwitched } =
-    useMyWorkspaces();
+  const {
+    baseUrl,
+    isWorkspaceSwitched,
+    setIsWorkspaceSwitched,
+    isSwitching: isSwitchingWorkspaces,
+  } = useMyWorkspaces();
+
   const { teamSlug } = useParams();
   const router = useRouter();
   const baseTeamUrl = useMemo(() => {
@@ -68,12 +78,15 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
   }, []);
 
   const onSwitchTeam = useCallback(
-    (team: MyTeamMembership) => {
+    (team: MyTeamMembership, showToast = false) => {
       if (isSwitchingTeam) return;
 
-      const switchToast = toast.custom(() => (
-        <LoadingToastMessage message="Switching Team..." />
-      ));
+      onClearTeam();
+      const switchToast: string | null = showToast
+        ? toast.custom(() => (
+            <LoadingToastMessage message="Switching Team..." />
+          ))
+        : null;
 
       setIsSwitchingTeam(true);
 
@@ -81,15 +94,20 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
         { workspaceId, teamId: team.team.id },
         {
           onSuccess: () => {
-            setCurrentTeam(team);
-            toast.custom(() => (
-              <ToastMessage
-                title="Team switched."
-                message={`Team switched to ${team.team.element.name}`}
-                mode={Mode.SUCCESS}
-              />
-            ));
-            router.push(`${baseUrl}/team/${team.team.element.slug}`);
+            if (showToast) {
+              toast.custom(() => (
+                <ToastMessage
+                  title="Team switched."
+                  message={`Team switched to ${team.team.element.name}`}
+                  mode={Mode.SUCCESS}
+                />
+              ));
+            }
+
+            const targetUrl = `${baseUrl}/team/${team.team.element.slug}`;
+            if (pathname !== targetUrl) {
+              router.push(targetUrl);
+            }
           },
           onError: (error) => {
             toast.custom(() => (
@@ -101,24 +119,36 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
             ));
           },
           onSettled: () => {
-            toast.dismiss(switchToast);
+            if (showToast && switchToast) {
+              toast.dismiss(switchToast);
+            }
             setIsSwitchingTeam(false);
           },
         },
       );
     },
-    [router, isSwitchingTeam, workspaceId, setLastTeamSelected],
+    [
+      router,
+      isSwitchingTeam,
+      workspaceId,
+      setLastTeamSelected,
+      baseUrl,
+      pathname,
+      onClearTeam,
+    ],
   );
 
   const onSwitchDefaultTeam = useCallback(() => {
     const defaultTeam = data?.lastTeamSelected;
 
     if (defaultTeam) {
-      setCurrentTeam(defaultTeam);
+      router.push(
+        `${baseUrl}/team/${data.lastTeamSelected?.team.element.slug}`,
+      );
     } else {
       setCurrentTeam(null);
     }
-  }, [data?.lastTeamSelected]);
+  }, [data?.lastTeamSelected, baseUrl, router]);
 
   const contextValue = useMemo(
     () => ({
@@ -154,13 +184,8 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
         foundTeam.team.element.slug !== currentTeam?.team.element.slug
       ) {
         setCurrentTeam(foundTeam);
-        if (
-          data.lastTeamSelected &&
-          foundTeam.team.id !== data.lastTeamSelected?.team.id
-        ) {
-          setLastTeamSelected({ workspaceId, teamId: foundTeam.team.id });
-        }
       }
+
       return;
     }
 
@@ -171,8 +196,9 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
     currentTeam,
     isLoading,
     workspaceId,
-    onSwitchDefaultTeam,
+    onSwitchTeam,
     setLastTeamSelected,
+    onSwitchDefaultTeam,
   ]);
 
   useEffect(() => {
@@ -184,15 +210,9 @@ export const TeamProvider = ({ children, workspaceId }: Props) => {
   useEffect(() => {
     if (!isWorkspaceSwitched) return;
 
-    onClearTeam();
-    onSwitchDefaultTeam();
+    // onSwitchDefaultTeam();
     setIsWorkspaceSwitched(false);
-  }, [
-    isWorkspaceSwitched,
-    setIsWorkspaceSwitched,
-    onSwitchDefaultTeam,
-    onClearTeam,
-  ]);
+  }, [isWorkspaceSwitched, setIsWorkspaceSwitched, onSwitchDefaultTeam]);
 
   if (isLoading) {
     return <LoadingMessage message="Loading Your Teams..." />;

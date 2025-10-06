@@ -29,7 +29,6 @@ import { useTheme } from "next-themes";
 
 const UserMenu = () => {
   const { loggedUser } = useAuth();
-  const { onClear: onClearMyWorkspaces } = useMyWorkspaces();
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
@@ -75,7 +74,6 @@ const UserMenu = () => {
 
         const signOutToast = toast.loading(`Signing Out...`);
         setTimeout(() => {
-          onClearMyWorkspaces();
           authClient
             .signOut({})
             .then(() => {

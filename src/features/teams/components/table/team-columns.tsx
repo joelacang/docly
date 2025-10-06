@@ -6,6 +6,8 @@ import Badge from "@/components/custom/badge";
 import { teamPrivacyIcon, teamTypeIcon } from "@/utils/icon";
 import TeamDropdownMenu from "../team-dropdown-menu";
 import TeamLeadersCardSection from "../team-leader-card-section";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontalIcon } from "lucide-react";
 
 export const teamColumns: ColumnDef<TeamMembers>[] = [
   {
@@ -56,7 +58,13 @@ export const teamColumns: ColumnDef<TeamMembers>[] = [
     accessorKey: "id",
     header: () => null,
     cell: ({ row }) => {
-      return <TeamDropdownMenu team={row.original.team} />;
+      return (
+        <TeamDropdownMenu team={row.original.team}>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontalIcon />
+          </Button>
+        </TeamDropdownMenu>
+      );
     },
   },
 ];

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import { SIZE } from "@/types";
+import { useMyTeams } from "@/providers/team-provider";
 
 interface Props {
   team: TeamSummary;
@@ -18,6 +19,8 @@ const TeamBadge = ({
   compact = false,
 }: Props) => {
   const { baseUrl } = useMyWorkspaces();
+  const { myTeams } = useMyTeams();
+  const membership = myTeams.find((t) => t.team.id === team.id);
 
   return (
     <div className="flex flex-row items-start justify-start gap-4">
@@ -44,7 +47,7 @@ const TeamBadge = ({
             {team.element.name}
           </Link>
           <p className="text-muted-foreground text-sm">
-            {team.membersCount} Member{team.membersCount !== 1 ? "s" : ""}
+            {membership?.membership.role ?? "Non-Member"}
           </p>
         </div>
         {children && <div>{children}</div>}

@@ -10,10 +10,7 @@ const WorkspaceSidebarContent = () => {
   if (!currentWorkspace) return null;
 
   return (
-    <div className="space-y-6 p-4">
-      {!myTeams.length && <NoTeamsMessage />}
-      <TeamDashboardSection />
-    </div>
+    <div className="space-y-6 p-4">{!myTeams.length && <NoTeamsMessage />}</div>
   );
 };
 

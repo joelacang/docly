@@ -87,7 +87,7 @@ const TeamSidebarHeader = () => {
                           avatar: <TeamAvatar team={team.team} />,
                           action: () => {
                             if (currentTeam.team.id !== team.team.id)
-                              onSwitchTeam(team);
+                              onSwitchTeam(team, true, true);
                           },
                         }}
                       />

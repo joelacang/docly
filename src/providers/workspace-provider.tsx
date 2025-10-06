@@ -18,6 +18,7 @@ import {
   useState,
 } from "react";
 import toast from "react-hot-toast";
+import { useMyTeams } from "./team-provider";
 
 type WorkspaceContext = {
   myWorkspaces: WorkspaceMembership[];
@@ -81,7 +82,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
                 mode={Mode.SUCCESS}
               />
             ));
-            router.push(`/workspace/${workspace.workspace.element.slug}`);
             setCurrentWorkspace(workspace);
             setIsWorkspaceSwitched(true);
           },
@@ -107,6 +107,7 @@ export const WorkspaceProvider = ({ children }: Props) => {
       setLastWorkspaceVisited,
       setCurrentWorkspace,
       setIsSwitching,
+      setIsWorkspaceSwitched,
     ],
   );
 

@@ -2,20 +2,17 @@
 
 import Badge from "@/components/custom/badge";
 import ErrorMessage from "@/components/messages/error-message";
-import KPICard from "@/features/dashboard/kpi-card";
 import ElementDetail from "@/features/element/components/element-detail";
 import ElementDetailsCard from "@/features/element/components/element-details-card";
-import PageHeader from "@/features/pages/page-header";
-import TeamAvatar from "@/features/teams/components/team-avatar";
+import SettingsButton from "@/features/teams/components/settings-button";
 import TeamLoaderBySlug from "@/features/teams/components/team-loader-by-slug";
 import TeamPageHeader from "@/features/teams/components/team-page-header";
 import { useMyTeams } from "@/providers/team-provider";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
-import { SIZE } from "@/types";
+import { getTeamAccess } from "@/types/team";
 import { Colors } from "@/utils/colors";
 import { teamPrivacyIcon, teamTypeIcon } from "@/utils/icon";
-import { Color } from "@prisma/client";
-import { LockIcon, TagIcon, UserIcon } from "lucide-react";
+import { LockIcon, TagIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 
 const TeamHomePage = () => {
@@ -23,6 +20,13 @@ const TeamHomePage = () => {
   const { currentTeam } = useMyTeams();
   const { currentWorkspace } = useMyWorkspaces();
   const color = Colors[currentTeam?.team.element.color ?? "BLUE"];
+  const isTeamAdmin =
+    currentTeam &&
+    currentWorkspace?.membership &&
+    getTeamAccess(
+      currentTeam?.membership.role,
+      currentWorkspace?.membership?.role,
+    );
 
   if (!teamSlug || !currentWorkspace) {
     return (
@@ -47,6 +51,7 @@ const TeamHomePage = () => {
       <TeamPageHeader
         team={currentTeam.team}
         membershipInfo={currentTeam.membership}
+        settings={isTeamAdmin ? <SettingsButton team={currentTeam} /> : null}
       />
       <div className="@container w-full px-4">
         <div className="grid w-full grid-cols-12 gap-6">
