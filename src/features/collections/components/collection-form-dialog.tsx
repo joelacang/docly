@@ -13,7 +13,7 @@ import CollectionForm from "./collection-form";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 const CollectionFormDialog = () => {
-  const { open, onClose, isPending, collectionType, parentFolderId } =
+  const { open, onClose, isPending, collectionType, parentFolderId, teamId } =
     useCollectionFormDialog();
   const collectionDetails = COLLECTION_DISPLAYS[collectionType ?? "Notebook"];
   const { currentWorkspace } = useMyWorkspaces();
@@ -46,6 +46,7 @@ const CollectionFormDialog = () => {
               collectionType={collectionType}
               workspaceId={currentWorkspace.workspace.id}
               parentFolderId={parentFolderId}
+              teamId={teamId}
             />
           )}
         </DialogContainer>

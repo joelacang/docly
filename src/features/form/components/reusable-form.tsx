@@ -198,6 +198,8 @@ export function ReusableForm<TSchema extends z.ZodObject<any>>({
             );
           })}
           <div>{children}</div>
+          {/* Uncomment this to check schema values */}
+          <pre>{JSON.stringify(form.getValues(), null, 2)}</pre>
         </div>
 
         <div className="flex w-full items-center justify-end pt-4">

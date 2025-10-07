@@ -1,5 +1,9 @@
 import z4 from "zod/v4";
-import { createTRPCRouter, workspaceReadProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  teamReadProcedure,
+  workspaceReadProcedure,
+} from "../trpc";
 import { TRPCError } from "@trpc/server";
 import {
   CollectionPreviewBaseSelection,
@@ -13,6 +17,7 @@ import { convertToFolderPreview } from "@/server/helper-functions/folder";
 import { convertToCollectionPreview } from "@/server/helper-functions/collection";
 import type { FolderItemsList, FolderPreview } from "@/types/folder";
 import type { CollectionPreview } from "@/types/collection";
+import { getFavorites } from "@/server/helper-functions/favorite";
 
 export const favoriteRouter = createTRPCRouter({
   add: workspaceReadProcedure
@@ -140,64 +145,22 @@ export const favoriteRouter = createTRPCRouter({
       }
     }),
 
-  getFavorites: workspaceReadProcedure.query(async ({ ctx, input }) => {
-    const favoritesData = await ctx.db.favorite.findMany({
-      where: {
-        workspaceId: input.workspaceId,
-        userId: ctx.session.user.id,
-      },
-      select: {
-        id: true,
-        element: {
-          select: {
-            ...ElementPreviewPrismaSelection,
-            folder: {
-              select: FolderPreviewBaseSelection,
-            },
-            collection: {
-              select: CollectionPreviewBaseSelection,
-            },
-          },
-        },
-      },
-      orderBy: {
-        element: {
-          name: "asc",
-        },
-      },
+  getFavorites: workspaceReadProcedure.query(async ({ ctx }) => {
+    const { workspaceMembership, user: loggedUser } = ctx.session;
+    return getFavorites({
+      workspaceId: workspaceMembership.workspace.id,
+      teamId: null,
+      loggedUserId: loggedUser.id,
     });
+  }),
 
-    const folders: FolderPreview[] = [];
-    const collections: CollectionPreview[] = [];
+  getTeamFavorites: teamReadProcedure.query(async ({ ctx }) => {
+    const { workspaceMembership, team, user: loggedUser } = ctx.session;
 
-    for (const f of favoritesData) {
-      if (f.element.type === "Folder" && f.element.folder !== null) {
-        const { folder, ...element } = f.element;
-        const folderPreview = convertToFolderPreview({
-          ...folder,
-          element,
-        });
-
-        folders.push({
-          ...folderPreview,
-          favoriteId: f.id,
-        });
-      }
-
-      if (f.element.type === "Collection" && f.element.collection !== null) {
-        const { collection, ...element } = f.element;
-        const collectionPreview = convertToCollectionPreview({
-          ...collection,
-          element,
-        });
-
-        collections.push({
-          ...collectionPreview,
-          favoriteId: f.id,
-        });
-      }
-    }
-
-    return { folders, collections } satisfies FolderItemsList;
+    return getFavorites({
+      workspaceId: workspaceMembership.workspace.id,
+      teamId: team.id,
+      loggedUserId: loggedUser.id,
+    });
   }),
 });

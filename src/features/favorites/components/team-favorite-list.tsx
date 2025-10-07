@@ -4,22 +4,21 @@ import AlertMessage from "@/components/messages/alert-message";
 import { QueryStateHandler } from "@/components/query-state-handler";
 import CollectionSidebarMenuItem from "@/features/workspace-items/components/collection-sidebar-menu-item";
 import FolderSidebarMenuItem from "@/features/workspace-items/components/folder-sidebar-menu-item";
-import { useMyWorkspaces } from "@/providers/workspace-provider";
 import { api } from "@/trpc/react";
-import { Mode } from "@/types";
 import { StarOffIcon } from "lucide-react";
 
 interface Props {
   workspaceId: string;
+  teamId: string;
   isEditor?: boolean;
 }
-const FavoriteList = ({ workspaceId, isEditor }: Props) => {
+const TeamFavoriteList = ({ workspaceId, teamId, isEditor }: Props) => {
   const {
     data: favorites,
     isLoading,
     isError,
     error,
-  } = api.favorite.getFavorites.useQuery({ workspaceId });
+  } = api.favorite.getTeamFavorites.useQuery({ workspaceId, teamId });
 
   return (
     <QueryStateHandler
@@ -62,4 +61,4 @@ const FavoriteList = ({ workspaceId, isEditor }: Props) => {
   );
 };
 
-export default FavoriteList;
+export default TeamFavoriteList;

@@ -25,9 +25,7 @@ type WorkspaceContext = {
   currentWorkspace: WorkspaceMembership | null;
   baseUrl: string;
   isSwitching: boolean;
-  isWorkspaceSwitched: boolean;
   setCurrentWorkspace: (workspace: WorkspaceMembership | null) => void;
-  setIsWorkspaceSwitched: (status: boolean) => void;
   onSwitchWorkspace: (workspace: WorkspaceMembership) => void;
 };
 
@@ -51,7 +49,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
   const [currentWorkspace, setCurrentWorkspace] =
     useState<WorkspaceMembership | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
-  const [isWorkspaceSwitched, setIsWorkspaceSwitched] = useState(false);
 
   const { workspaceSlug } = useParams();
   const router = useRouter();
@@ -60,6 +57,10 @@ export const WorkspaceProvider = ({ children }: Props) => {
     api.workspace.getMyWorkspaces.useQuery();
   const { mutate: setLastWorkspaceVisited } =
     api.workspace.setLastWorkspaceVisited.useMutation();
+
+  const baseUrl = currentWorkspace
+    ? `/workspace/${currentWorkspace.workspace.element.slug}`
+    : "/";
 
   const onSwitchWorkspace = useCallback(
     (workspace: WorkspaceMembership) => {
@@ -80,10 +81,13 @@ export const WorkspaceProvider = ({ children }: Props) => {
                 title="Workspace Switched"
                 message={`Workspace has been switched to: ${workspace.workspace.element.name}`}
                 mode={Mode.SUCCESS}
-              />
+              >
+                <p className="text-muted-foreground text-xs">
+                  Last Team Selected Id: {workspace.lastTeamSelected ?? "NONE"}
+                </p>
+              </ToastMessage>
             ));
-            setCurrentWorkspace(workspace);
-            setIsWorkspaceSwitched(true);
+            router.push(`/workspace/${workspace.workspace.element.slug}`);
           },
           onError: (error) => {
             toast.custom(() => (
@@ -101,19 +105,8 @@ export const WorkspaceProvider = ({ children }: Props) => {
         },
       );
     },
-    [
-      isSwitching,
-      router,
-      setLastWorkspaceVisited,
-      setCurrentWorkspace,
-      setIsSwitching,
-      setIsWorkspaceSwitched,
-    ],
+    [isSwitching, router, setLastWorkspaceVisited, setIsSwitching],
   );
-
-  const baseUrl = currentWorkspace
-    ? `/workspace/${currentWorkspace.workspace.element.slug}`
-    : "/";
 
   const contextValue: WorkspaceContext = useMemo(
     () => ({
@@ -121,8 +114,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
       baseUrl,
       currentWorkspace,
       isSwitching,
-      isWorkspaceSwitched,
-      setIsWorkspaceSwitched,
       setCurrentWorkspace,
       onSwitchWorkspace,
     }),
@@ -132,8 +123,6 @@ export const WorkspaceProvider = ({ children }: Props) => {
       onSwitchWorkspace,
       baseUrl,
       isSwitching,
-      isWorkspaceSwitched,
-      setIsWorkspaceSwitched,
     ],
   );
 
@@ -145,21 +134,17 @@ export const WorkspaceProvider = ({ children }: Props) => {
         (w) => w.workspace.element.slug === workspaceSlug,
       );
 
-      if (
-        found &&
-        found.workspace.element.slug !==
-          currentWorkspace?.workspace.element.slug
-      ) {
+      if (found) {
         setCurrentWorkspace(found);
         setLastWorkspaceVisited({ workspaceId: found.workspace.id });
       }
     } else {
-      const targetSlug = data.myWorkspaces[0]?.workspace.element.slug;
+      const lastVisited = data.myWorkspaces[0];
 
-      if (targetSlug) {
-        router.push(`/workspace/${targetSlug}`);
+      if (lastVisited) {
+        router.push(`/workspace/${lastVisited.workspace.element.slug}`);
       } else {
-        router.push("/no-workspace");
+        router.push(`/no-workspace`);
       }
     }
   }, [

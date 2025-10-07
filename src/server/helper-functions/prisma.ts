@@ -1,6 +1,7 @@
 import { MembershipStatus, Prisma, TeamRole } from "@prisma/client";
 import { UserPrismaSelection } from "./user";
 import type { TeamMembershipDetails } from "@/types/team";
+import { id } from "zod/v4/locales";
 
 export const ElementPreviewPrismaSelection = {
   id: true,
@@ -31,6 +32,11 @@ export const WorkspaceMembershipPrismaSelection = {
   id: true,
   role: true,
   status: true,
+  lastTeamSelected: {
+    select: {
+      id: true,
+    },
+  },
   workspace: {
     select: {
       id: true,
@@ -58,6 +64,7 @@ export const FolderPreviewBaseSelection = {
   id: true,
   parentFolderId: true,
   workspaceId: true,
+  teamId: true,
   depth: true,
   _count: {
     select: {
@@ -84,6 +91,7 @@ export type FolderPreviewSelected = Prisma.FolderGetPayload<{
 export const CollectionPreviewBaseSelection = {
   id: true,
   folderId: true,
+  teamId: true,
   workspaceId: true,
   type: true,
 };

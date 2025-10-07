@@ -16,7 +16,8 @@ import { useFolderFormDialog } from "@/features/folders/hooks/use-folder-form-di
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 const AddWorkspaceItemDialog = () => {
-  const { open, onClose, showFolder, parentFolderId } = useAddItemDialog();
+  const { open, onClose, showFolder, parentFolderId, teamId } =
+    useAddItemDialog();
   const { onOpen: openAddFolder } = useFolderFormDialog();
   const { currentWorkspace } = useMyWorkspaces();
 
@@ -39,13 +40,16 @@ const AddWorkspaceItemDialog = () => {
                 item={folderItem}
                 onClick={() => {
                   if (currentWorkspace) {
-                    openAddFolder({});
+                    openAddFolder({ teamId });
                   }
                 }}
               />
             </div>
           )}
-          <CollectionCategories parentFolderId={parentFolderId} />
+          <CollectionCategories
+            parentFolderId={parentFolderId}
+            teamId={teamId}
+          />
         </DialogContainer>
       </DialogContent>
     </Dialog>

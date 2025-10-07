@@ -5,7 +5,14 @@ type AddItemDialogState = {
   open: boolean;
   showFolder: boolean;
   parentFolderId: string | null;
-  onOpen: (parentFolder?: string | null) => void;
+  teamId: string | null;
+  onOpen: ({
+    parentFolderId,
+    teamId,
+  }: {
+    parentFolderId?: string | null;
+    teamId?: string | null;
+  }) => void;
   onClose: () => void;
   onOpenAddCollection: (parentFolderId?: string | null) => void;
 };
@@ -15,11 +22,13 @@ export const useAddItemDialog = create<AddItemDialogState>((set) => ({
   showFolder: false,
   parentFolderId: null,
   collectionType: null,
-  onOpen: (parentFolderId) =>
+  teamId: null,
+  onOpen: ({ parentFolderId, teamId }) =>
     set({
       open: true,
       showFolder: true,
       parentFolderId: parentFolderId ?? null,
+      teamId: teamId ?? null,
     }),
   onClose: () =>
     set({

@@ -1,5 +1,7 @@
 import type { Color } from "@prisma/client";
 import type { LucideIcon } from "lucide-react";
+import type { FolderPreview } from "./folder";
+import type { CollectionPreview } from "./collection";
 
 export type QueryStateHandlerProps<T> = {
   isLoading: boolean;

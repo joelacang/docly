@@ -14,8 +14,9 @@ interface Props {
   parentFolderId: string | null;
   workspaceId: string;
   depth: number;
+  teamId: string | null;
 }
-const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
+const FolderForm = ({ parentFolderId, workspaceId, depth, teamId }: Props) => {
   const { mutate: createFolder, isPending } = api.folder.create.useMutation();
   const { onPending, onCompleted, onClose } = useFolderFormDialog();
   const apiUtils = api.useUtils();
@@ -93,27 +94,30 @@ const FolderForm = ({ parentFolderId, workspaceId, depth }: Props) => {
   };
 
   return (
-    <ReusableForm
-      props={{
-        schema: createFolderSchema,
-        fields,
-        submitText: "Create Folder",
-        submitTextPending: "Creating Folder...",
-        onSubmit,
-        isPending: isPending,
-        showErrors: true,
-        defaultValues: {
-          name: "",
-          description: "",
-          color: Color.BLUE,
-          parentFolderId,
-          workspaceId,
-          elementType: "Folder",
-          depth,
-          avatarUrl: "",
-        },
-      }}
-    />
+    <div>
+      <ReusableForm
+        props={{
+          schema: createFolderSchema,
+          fields,
+          submitText: "Create Folder",
+          submitTextPending: "Creating Folder...",
+          onSubmit,
+          isPending: isPending,
+          showErrors: true,
+          defaultValues: {
+            name: "",
+            description: "",
+            color: Color.BLUE,
+            parentFolderId,
+            workspaceId,
+            elementType: "Folder",
+            depth,
+            avatarUrl: "",
+            teamId,
+          },
+        }}
+      />
+    </div>
   );
 };
 

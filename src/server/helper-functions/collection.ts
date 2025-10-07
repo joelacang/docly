@@ -6,9 +6,13 @@ export function convertToCollectionPreview(
 ): CollectionPreview {
   return {
     id: data.id,
-    element: data.element,
+    element: {
+      ...data.element,
+      owners: data.element.owners.map((o) => o.owner),
+    },
     parentFolderId: data.folderId,
     workspaceId: data.workspaceId,
+    teamId: data.teamId,
     type: data.type,
   };
 }

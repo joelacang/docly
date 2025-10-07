@@ -28,7 +28,8 @@ export const folderRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const results = await ctx.db.$transaction(async (tx) => {
-          const { workspaceId, parentFolderId, depth, ...otherFields } = input;
+          const { workspaceId, parentFolderId, teamId, depth, ...otherFields } =
+            input;
 
           const element = await createElement({
             data: { ...otherFields },
@@ -41,6 +42,7 @@ export const folderRouter = createTRPCRouter({
               elementId: element.id,
               workspaceId: workspaceId,
               parentFolderId: parentFolderId,
+              teamId,
               depth: depth,
             },
             select: FolderPreviewPrismaSelection,

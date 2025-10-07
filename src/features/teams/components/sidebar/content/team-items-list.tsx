@@ -2,15 +2,15 @@ import { QueryStateHandler } from "@/components/query-state-handler";
 import { api } from "@/trpc/react";
 import { Loader2Icon, SearchXIcon } from "lucide-react";
 import { useEffect } from "react";
-import AddItemButton from "./add-item-button";
-import FolderSidebarMenuItem from "./folder-sidebar-menu-item";
-import CollectionSidebarMenuItem from "./collection-sidebar-menu-item";
-import CollapsibleSidebarMenuItem from "./collapsible-sidebar-menu-item";
 import Centered from "@/components/layout/centered";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import { Colors } from "@/utils/colors";
 import Loading from "@/components/loading";
 import AlertMessage from "@/components/messages/alert-message";
+import CollapsibleSidebarMenuItem from "@/features/workspace-items/components/collapsible-sidebar-menu-item";
+import AddItemButton from "@/features/workspace-items/components/add-item-button";
+import FolderSidebarMenuItem from "@/features/workspace-items/components/folder-sidebar-menu-item";
+import CollectionSidebarMenuItem from "@/features/workspace-items/components/collection-sidebar-menu-item";
 
 interface Props {
   parentFolderId: string | null;
@@ -46,7 +46,7 @@ const WorkspaceItemsList = ({
 
       onEmpty(isEmpty);
     }
-  }, [onEmpty, items]);
+  }, [onEmpty, isEmpty, items]);
 
   useEffect(() => {
     if (workspaceId) {
@@ -54,7 +54,7 @@ const WorkspaceItemsList = ({
         console.error(`Error refetching getWorkspaceItems`, error),
       );
     }
-  }, [workspaceId]);
+  }, [workspaceId, refetch]);
 
   return (
     <QueryStateHandler

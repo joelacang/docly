@@ -6,6 +6,7 @@ export const createFolderSchema = createElementBaseSchema.extend({
   parentFolderId: z.cuid().nullable().optional(),
   workspaceId: z.cuid(),
   depth: z.int(),
+  teamId: z.cuid().nullable().optional(),
 });
 
 export type FolderPreview = {
@@ -13,6 +14,7 @@ export type FolderPreview = {
   element: ElementPreview;
   workspaceId: string;
   parentFolderId?: string | null;
+  teamId?: string | null;
   depth: number;
   items: number;
   favoriteId?: string | null;

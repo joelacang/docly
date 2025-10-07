@@ -19,39 +19,44 @@ import type { WorkspaceMembership } from "@/types/workspace";
 import MyDropdownMenuItem from "@/components/custom/my-dropdown-menu-item";
 import type { MenuItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useMyWorkspaces } from "@/providers/workspace-provider";
 
 interface Props {
   workspace: WorkspaceMembership;
 }
 
-export const workspaceMenuItems: MenuItem[] = [
-  {
-    id: "home",
-    label: "Home",
-    icon: HomeIcon,
-  },
-  {
-    id: "workspace-items",
-    label: "Workspace Items",
-    icon: ListIcon,
-  },
-  {
-    id: "memberships",
-    label: "Memberships",
-    icon: UserCogIcon,
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    icon: BellIcon,
-  },
-  {
-    id: "settings",
-    label: "Workspace Settings",
-    icon: SettingsIcon,
-  },
-];
 const WorkspaceDropdownMenu = ({ workspace }: Props) => {
+  const router = useRouter();
+  const { baseUrl } = useMyWorkspaces();
+  const workspaceMenuItems: MenuItem[] = [
+    {
+      id: "home",
+      label: "Home",
+      icon: HomeIcon,
+      action: () => router.push(`${baseUrl}/home`),
+    },
+    {
+      id: "workspace-items",
+      label: "Workspace Items",
+      icon: ListIcon,
+    },
+    {
+      id: "memberships",
+      label: "Memberships",
+      icon: UserCogIcon,
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: BellIcon,
+    },
+    {
+      id: "settings",
+      label: "Workspace Settings",
+      icon: SettingsIcon,
+    },
+  ];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

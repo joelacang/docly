@@ -5,7 +5,7 @@ import WorkspaceLoader from "@/features/workspaces/components/workspace-loader";
 import { useMyWorkspaces } from "@/providers/workspace-provider";
 import { useParams } from "next/navigation";
 
-const WorkspaceHomePage = () => {
+const WorkspaceLoadingPage = () => {
   const { currentWorkspace, myWorkspaces } = useMyWorkspaces();
   const { workspaceSlug } = useParams();
 
@@ -32,4 +32,4 @@ const WorkspaceHomePage = () => {
   );
 };
 
-export default WorkspaceHomePage;
+export default WorkspaceLoadingPage;

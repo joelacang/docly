@@ -6,7 +6,7 @@ import {
   SettingsIcon,
   UserCogIcon,
 } from "lucide-react";
-import SidebarSection from "../sidebar-section";
+import SidebarSection from "./sidebar-section";
 import { usePathname, useRouter } from "next/navigation";
 import SidebarMenuButton from "@/features/sidebar/components/sidebar-menu-button";
 import { useMyTeams } from "@/providers/team-provider";

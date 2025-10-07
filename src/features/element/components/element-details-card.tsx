@@ -81,7 +81,7 @@ const ElementDetailsCard = ({
             </span>
           </p>
           <p className="text-muted-foreground text-xs">
-            ID: <span className="font-mono">{element.id}</span>
+            Element Id: <span className="font-mono">{element.id}</span>
           </p>
         </div>
       </div>

@@ -1,7 +1,6 @@
 import { useMyWorkspaces } from "@/providers/workspace-provider";
-import TeamDashboardSection from "../team/team-dashboard-section";
 import { useMyTeams } from "@/providers/team-provider";
-import NoTeamsMessage from "../../../no-teams-message";
+import NoTeamsMessage from "@/features/teams/components/no-teams-message";
 
 const WorkspaceSidebarContent = () => {
   const { currentWorkspace } = useMyWorkspaces();

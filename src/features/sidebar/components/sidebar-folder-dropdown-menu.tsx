@@ -70,8 +70,9 @@ const SidebarFolderDropdownMenu = ({ folder, ...props }: Props) => {
       disabled: isPending,
       action: () => {
         openAddFolder({
-          parentFolderId: folder.id ?? null,
+          parentFolderId: folder.id,
           depth: folder.depth + 1,
+          teamId: folder.teamId,
         });
       },
     },
@@ -220,6 +221,7 @@ const SidebarFolderDropdownMenu = ({ folder, ...props }: Props) => {
               </p>
             </div>
           </div>
+          {/* <pre>{JSON.stringify(folder, null, 2)}</pre> */}
         </DropdownMenuGroup>
         {items.map((item) => {
           if (item.hidden) return null;

@@ -103,7 +103,11 @@ export async function getWorkspaceMembership({
     },
   };
 
-  return { ...details, access: getWorkspaceAccess(details) };
+  return {
+    ...details,
+    access: getWorkspaceAccess(details),
+    lastTeamSelected: data.lastTeamSelected?.id,
+  };
 }
 
 export function convertToWorkspaceMembership(
@@ -124,6 +128,7 @@ export function convertToWorkspaceMembership(
   return {
     ...result,
     access: getWorkspaceAccess(result),
+    lastTeamSelected: others.lastTeamSelected?.id,
   };
 }
 

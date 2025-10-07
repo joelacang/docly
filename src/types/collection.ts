@@ -6,6 +6,7 @@ export const createCollectionSchema = createElementBaseSchema.extend({
   parentFolderId: z4.cuid().nullable().optional(),
   workspaceId: z4.cuid(),
   collectionType: z4.enum(CollectionType),
+  teamId: z4.cuid().nullable().optional(),
 });
 
 export type CollectionPreview = {
@@ -15,4 +16,5 @@ export type CollectionPreview = {
   parentFolderId?: string | null;
   element: ElementPreview;
   favoriteId?: string | null;
+  teamId?: string | null;
 };

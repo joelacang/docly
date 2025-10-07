@@ -284,7 +284,9 @@ export const teamReadProcedure = workspaceReadProcedure
 
     if (teamAccess === TeamAccess.NO_ACCESS) {
       throw new TRPCError(
-        unAuthorized("You don't have any access to this team."),
+        unAuthorized(
+          `You don't have access to this team. Access: ${teamAccess}. Team Membership: ${teamMembershipData?.role} Workspace Access: ${ctx.session.workspaceMembership.access}`,
+        ),
       );
     }
     // Check if the team item is isAccessible.

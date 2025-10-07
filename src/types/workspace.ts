@@ -21,6 +21,7 @@ export type WorkspaceMembership = {
   workspace: WorkspacePreview;
   membership: MembershipPreview | null;
   access?: Access;
+  lastTeamSelected?: string | null;
 };
 
 export enum Access {

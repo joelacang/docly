@@ -45,7 +45,10 @@ const TeamSidebarHeader = () => {
           size={SIZE.MICRO}
         />
       ),
-      action: () => onClearTeam(),
+      action: () => {
+        onClearTeam();
+        router.push(`${baseUrl}/home`);
+      },
     },
     {
       id: "all-teams",

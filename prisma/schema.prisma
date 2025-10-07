@@ -318,6 +318,8 @@ model Team {
   element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
   members          TeamMembership[]
+  folders          Folder[]
+  collections      Collection[]
   lastTeamSelected WorkspaceMembership[]
 
   @@index([workspaceId])
@@ -384,10 +386,12 @@ model Folder {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   elementId      String   @unique
+  teamId         String?
 
   workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   parentFolder Folder?   @relation("ParentFolder", fields: [parentFolderId], references: [id], onDelete: Cascade)
   element      Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  team         Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   childFolders Folder[]     @relation("ParentFolder")
   collections  Collection[]
@@ -402,6 +406,7 @@ model Collection {
   workspaceId String
   elementId   String         @unique
   folderId    String?
+  teamId      String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   type        CollectionType
@@ -409,6 +414,7 @@ model Collection {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   element   Element   @relation(fields: [elementId], references: [id], onDelete: Cascade)
   folder    Folder?   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  team      Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@index([folderId])
   @@index([workspaceId])

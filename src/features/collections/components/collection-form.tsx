@@ -14,11 +14,13 @@ interface Props {
   collectionType: CollectionType;
   workspaceId: string;
   parentFolderId: string | null;
+  teamId: string | null;
 }
 const CollectionForm = ({
   collectionType,
   workspaceId,
   parentFolderId,
+  teamId,
 }: Props) => {
   const { mutate: createCollection, isPending } =
     api.collection.create.useMutation();
@@ -100,6 +102,7 @@ const CollectionForm = ({
     description: "",
     color: Color.BLUE,
     parentFolderId,
+    teamId,
     workspaceId,
     elementType: "Collection" as ElementType,
     avatarUrl: "",

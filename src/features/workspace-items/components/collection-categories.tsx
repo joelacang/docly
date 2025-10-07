@@ -3,8 +3,9 @@ import CollectionCategorySection from "./collection-category-section";
 
 interface Props {
   parentFolderId?: string | null;
+  teamId?: string | null;
 }
-const CollectionCategories = ({ parentFolderId }: Props) => {
+const CollectionCategories = ({ parentFolderId, teamId }: Props) => {
   return (
     <div className="space-y-5 pt-6">
       {Object.entries(COLLECTION_CATEGORIES).map(([name, category]) => (
@@ -12,6 +13,7 @@ const CollectionCategories = ({ parentFolderId }: Props) => {
           key={name}
           category={category}
           parentFolderId={parentFolderId}
+          teamId={teamId}
         />
       ))}
     </div>

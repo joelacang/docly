@@ -7,6 +7,7 @@ import {
 } from "@/types/team";
 import {
   createTRPCRouter,
+  teamReadProcedure,
   workspaceAdminProcedure,
   workspaceReadProcedure,
 } from "../trpc";
@@ -14,6 +15,7 @@ import { TRPCError } from "@trpc/server";
 import { unknownError } from "@/server/helper-functions";
 import { createElement } from "@/server/helper-functions/element";
 import {
+  FolderPreviewBaseSelection,
   MyTeamMembershipSelectedFields,
   TeamMemberProfileSelectedFields,
   TeamSummarySelectedFields,

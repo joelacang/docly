@@ -5,13 +5,16 @@ type CollectionFormDialogState = {
   open: boolean;
   collectionType: CollectionType | null;
   parentFolderId: string | null;
+  teamId: string | null;
   isPending: boolean;
   onOpen: ({
     parentFolderId,
     collectionType,
+    teamId,
   }: {
     parentFolderId?: string | null;
     collectionType: CollectionType;
+    teamId?: string | null;
   }) => void;
   onClose: () => void;
   onPending: () => void;
@@ -24,12 +27,19 @@ export const useCollectionFormDialog = create<CollectionFormDialogState>(
     collectionType: null,
     parentFolderId: null,
     isPending: false,
-    onOpen: ({ parentFolderId, collectionType }) =>
-      set({ parentFolderId, collectionType, open: true }),
+    teamId: null,
+    onOpen: ({ parentFolderId, collectionType, teamId }) =>
+      set({
+        parentFolderId: parentFolderId ?? null,
+        collectionType,
+        teamId: teamId ?? null,
+        open: true,
+      }),
     onClose: () =>
       set({
         parentFolderId: null,
         collectionType: null,
+        teamId: null,
         isPending: false,
         open: false,
       }),

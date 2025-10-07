@@ -13,7 +13,7 @@ import AlertMessage from "@/components/messages/alert-message";
 import { Mode } from "@/types";
 
 const FolderFormDialog = () => {
-  const { open, isPending, parentFolderId, onOpen, onClose, depth } =
+  const { open, teamId, isPending, parentFolderId, onOpen, onClose, depth } =
     useFolderFormDialog();
   const { currentWorkspace } = useMyWorkspaces();
 
@@ -44,6 +44,7 @@ const FolderFormDialog = () => {
               parentFolderId={parentFolderId}
               workspaceId={currentWorkspace?.workspace.id}
               depth={depth}
+              teamId={teamId}
             />
           ) : (
             <AlertMessage

@@ -15,9 +15,14 @@ import { useCollectionFormDialog } from "@/features/collections/hooks/use-collec
 interface Props {
   category: CollectionCategory;
   parentFolderId?: string | null;
+  teamId?: string | null;
 }
 
-const CollectionCategorySection = ({ category, parentFolderId }: Props) => {
+const CollectionCategorySection = ({
+  category,
+  parentFolderId,
+  teamId,
+}: Props) => {
   const [open, setOpen] = useState(true);
   const Icon = category.icon;
   const color = Colors[category.color];
@@ -58,6 +63,7 @@ const CollectionCategorySection = ({ category, parentFolderId }: Props) => {
                   openAddCollection({
                     parentFolderId,
                     collectionType: collection.type,
+                    teamId,
                   });
                 }}
               />

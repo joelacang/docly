@@ -6,9 +6,13 @@ export function convertToFolderPreview(
 ): FolderPreview {
   return {
     id: data.id,
-    element: data.element,
+    element: {
+      ...data.element,
+      owners: data.element.owners.map((o) => o.owner),
+    },
     depth: data.depth,
     parentFolderId: data.parentFolderId,
+    teamId: data.teamId,
     workspaceId: data.workspaceId,
     items: data._count.childFolders + data._count.collections,
   };
